@@ -328,7 +328,7 @@
   }
 
   .mini-tray{ display:flex; gap:5px; margin-top:10px; justify-content:center; }
-  .mini-piece{ display:grid; gap:2px; opacity:0.85; }
+  .mini-piece{ display:flex; gap:2px; opacity:0.85; }
   .mini-cell{ width:8px; height:8px; border-radius:2px; background:#2a2d5e; }
   .mini-cell.on{ background: var(--c); }
 
@@ -404,6 +404,81 @@
   .lb-empty{ text-align:center; color:var(--ink-dim); font-size:12px; padding:20px 0; }
   #lbActions{ width:100%; max-width:420px; }
 
+  /* ---------- new: race banner + move timer + win badges + chat + online count ---------- */
+  .race-banner{
+    width:100%; max-width:340px; background: linear-gradient(120deg, rgba(255,77,157,0.18), rgba(255,176,32,0.14));
+    border:2px solid var(--amber); border-radius:16px; padding:10px 14px; margin-bottom:10px;
+    text-align:center; display:none;
+  }
+  .race-banner.show{ display:block; }
+  .race-banner .rb-label{ font-family:'Space Mono', monospace; font-size:10px; letter-spacing:1px; color:var(--ink-dim); text-transform:uppercase; }
+  .race-banner .rb-target{ font-weight:700; font-size:16px; color:var(--amber); margin:2px 0; }
+  .race-banner .rb-timer{ font-family:'Space Mono', monospace; font-weight:700; font-size:13px; color:var(--danger); }
+
+  .win-badge{
+    font-family:'Space Mono', monospace; font-size:9px; letter-spacing:0.5px;
+    padding:2px 7px; border-radius:6px; background: rgba(255,176,32,0.16); color: var(--amber);
+    flex-shrink:0; font-weight:700;
+  }
+
+  .online-count{
+    font-family:'Space Mono', monospace; font-size:10.5px; color:var(--ink-dim);
+    margin-top:10px; display:flex; align-items:center; gap:6px; justify-content:center;
+  }
+  .online-count .od{ width:7px; height:7px; border-radius:50%; background:var(--win); box-shadow:0 0 6px var(--win); }
+
+  /* chat */
+  .chat-wrap{
+    width:100%; max-width:760px; margin-top:16px;
+    background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
+    border:3px solid #4a3899; border-radius:20px; padding:10px;
+    display:flex; flex-direction:column;
+  }
+  .chat-log{
+    height:120px; overflow-y:auto; font-family:'Space Mono', monospace; font-size:11.5px;
+    display:flex; flex-direction:column; gap:5px; padding:4px 6px; margin-bottom:8px;
+  }
+  .chat-msg{ line-height:1.4; word-break:break-word; }
+  .chat-msg .who{ color: var(--cyan); font-weight:700; }
+  .chat-msg.me .who{ color: var(--pink); }
+  .chat-msg.sys{ color: var(--ink-dim); font-style:italic; }
+  .chat-input-row{ display:flex; gap:8px; }
+  .chat-input-row input{
+    flex:1; padding:10px 12px; font-size:13px; font-family:'Fredoka','Baloo 2',sans-serif;
+    background:#150c3d; border:2px solid #4a3899; border-radius:14px; color:var(--ink);
+  }
+  .chat-input-row input:focus{ outline:none; border-color:var(--cyan); }
+  .chat-input-row button{
+    width:auto; padding:10px 16px; flex:0 0 auto;
+  }
+
+  /* profile */
+  .profile-pic{
+    width:64px; height:64px; border-radius:50%; margin:0 auto 12px; overflow:hidden;
+    border:3px solid var(--amber); background:#150c3d; display:flex; align-items:center; justify-content:center;
+    font-size:26px; font-weight:700; color:var(--ink-dim); cursor:pointer; position:relative;
+  }
+  .profile-pic img{ width:100%; height:100%; object-fit:cover; }
+  .profile-pic-sm{
+    width:26px; height:26px; border-radius:50%; overflow:hidden; border:2px solid var(--amber);
+    background:#150c3d; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--ink-dim); flex-shrink:0;
+  }
+  .profile-pic-sm img{ width:100%; height:100%; object-fit:cover; }
+
+  /* customization */
+  .swatch-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
+  .block-swatch{
+    width:34px; height:34px; border-radius:9px; cursor:pointer; border:3px solid transparent;
+    background: var(--c);
+  }
+  .block-swatch.active{ border-color:var(--ink); }
+  .bg-swatch{
+    width:44px; height:34px; border-radius:9px; cursor:pointer; border:3px solid transparent;
+    background: var(--bgprev);
+  }
+  .bg-swatch.active{ border-color:var(--ink); }
+
   @media (prefers-reduced-motion: reduce){
     .cell.clearing{ animation:none; opacity:0; }
     *{ transition:none !important; }
@@ -470,6 +545,7 @@
         <button class="action" id="playAiBtn">Play vs AI</button>
         <button class="action" id="viewLeaderboardBtn">Leaderboard</button>
       </div>
+      <div class="online-count"><div class="od"></div><span id="onlineCountLabel">— players online</span></div>
     </div>
   </div>
 
@@ -507,6 +583,7 @@
       <div class="lobby-tabs">
         <div class="lobby-tab active" data-tab="create">Create room</div>
         <div class="lobby-tab" data-tab="join">Join room</div>
+        <div class="lobby-tab" data-tab="quick">Quick match</div>
       </div>
 
       <div class="lobby-pane active" id="pane-create">
@@ -525,6 +602,13 @@
         <div class="lobby-status" id="joinStatus"></div>
       </div>
 
+      <div class="lobby-pane" id="pane-quick">
+        <p class="sub" style="margin-bottom:14px;">Get matched with another player who's also looking for a game.</p>
+        <button class="action primary" id="quickMatchBtn">Find opponent</button>
+        <button class="action" id="cancelQuickBtn" style="display:none; margin-top:10px;">Cancel search</button>
+        <div class="lobby-status" id="quickStatus"></div>
+      </div>
+
       <button class="action" id="mpLobbyBackBtn" style="margin-top:14px;">Back to menu</button>
     </div>
   </div>
@@ -532,10 +616,15 @@
   <!-- ============ MULTIPLAYER MATCH ============ -->
   <div class="screen" id="screen-mp-match">
     <div id="matchWrap">
+      <div class="race-banner" id="raceBanner">
+        <div class="rb-label" id="raceLabel">Opponent topped out</div>
+        <div class="rb-target" id="raceTarget">Beat 0 to win!</div>
+        <div class="rb-timer" id="raceTimerVal">0:30</div>
+      </div>
       <div class="boards-row">
         <div class="side me">
           <div class="side-header">
-            <div class="side-name"><span class="nm" id="myNameLabel">You</span> <span class="tag">YOU</span></div>
+            <div class="side-name"><div class="profile-pic-sm" id="myPicSm">Y</div><span class="nm" id="myNameLabel">You</span> <span class="win-badge" id="myWinBadge">🏆0</span></div>
             <div class="side-score mono" id="myScoreVal">0</div>
           </div>
           <div class="panel" id="myPanel">
@@ -543,12 +632,13 @@
             <div id="comboToast">COMBO ×2</div>
           </div>
           <div class="tray-row" id="tray"></div>
+          <div class="score-box timer" id="moveTimerBox" style="margin:10px auto 0; width:110px;"><div class="label">Place in</div><div class="value mono" id="moveTimerVal">15</div></div>
           <div class="status-strip" id="myStatus"></div>
         </div>
 
         <div class="side opp">
           <div class="side-header">
-            <div class="side-name"><span class="nm" id="oppNameLabel">Opponent</span> <span class="tag" id="oppTag">OPP</span></div>
+            <div class="side-name"><div class="profile-pic-sm" id="oppPicSm">O</div><span class="nm" id="oppNameLabel">Opponent</span> <span class="win-badge" id="oppWinBadge">🏆0</span></div>
             <div class="side-score mono" id="oppScoreVal">0</div>
           </div>
           <div class="panel opp" id="oppPanel">
@@ -564,7 +654,15 @@
         <button class="action small" id="leaveBtn">Leave room</button>
       </div>
 
-      <div class="hint">Drag a piece onto your board. Fill a row or column to clear it. First player who runs out of moves loses.</div>
+      <div class="chat-wrap" id="chatWrap">
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="say something…" maxlength="140">
+          <button class="action primary" id="chatSendBtn">Send</button>
+        </div>
+      </div>
+
+      <div class="hint">Drag a piece onto your board before your placement timer runs out. If one player tops out, the other races the clock to beat their score.</div>
     </div>
   </div>
 
@@ -592,6 +690,11 @@
   <div class="overlay" id="settingsOverlay">
     <div class="overlay-card" style="text-align:left;">
       <h2 style="text-align:center;">Settings</h2>
+
+      <div class="profile-pic" id="profilePicBtn"><span id="profilePicInitial">?</span></div>
+      <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
+      <p class="sub" style="text-align:center;margin-top:-6px;">tap avatar to upload a photo</p>
+
       <div class="settings-row">
         <div><div class="lbl">Sound effects</div><div class="desc">place · clear · combo · win/lose</div></div>
         <button class="switch on" id="sfxSwitch"></button>
@@ -607,6 +710,10 @@
           <div class="theme-swatch" data-theme="sunset" style="--sw-a:#ffb15c; --sw-b:#ff5d8f;" title="Sunset"></div>
           <div class="theme-swatch" data-theme="frost" style="--sw-a:#7fe3ff; --sw-b:#a3a1ff;" title="Frost"></div>
         </div>
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="lbl">Block color set</div>
+        <div class="swatch-row" id="blockSwatchRow"></div>
       </div>
       <div class="stack-btns" style="margin-top:16px;">
         <button class="action primary" id="settingsCloseBtn">Done</button>
@@ -646,11 +753,14 @@
 <script>
 (function(){
   const SIZE = 8;
-  const GEMS = ['gem-amber','gem-coral','gem-emerald','gem-sapphire','gem-amethyst','gem-rose'];
+  const GEM_SETS = {
+    default: ['gem-amber','gem-coral','gem-emerald','gem-sapphire','gem-amethyst','gem-rose'],
+  };
   const GEM_VARS = {
     'gem-amber':'--gem-amber','gem-coral':'--gem-coral','gem-emerald':'--gem-emerald',
     'gem-sapphire':'--gem-sapphire','gem-amethyst':'--gem-amethyst','gem-rose':'--gem-rose'
   };
+  let GEMS = GEM_SETS.default.slice();
 
   const SHAPES = [
     [[0,0]],
@@ -681,34 +791,6 @@
     [[0,1],[1,0],[1,1],[2,1]],
   ];
 
-  /* =========================================================================
-     LEADERBOARD (Firebase Firestore) — lazy-loaded so a missing config or
-     no internet never breaks solo/1v1 gameplay itself.
-
-     TO ENABLE THE GLOBAL LEADERBOARD:
-     1. Go to https://console.firebase.google.com, create a free project.
-     2. Build > Firestore Database > Create database > Start in test mode
-        (or use the rules below).
-     3. Project settings (gear icon) > General > "Your apps" > Add app > Web.
-        Copy the firebaseConfig object it gives you and paste its values below.
-     4. In Firestore > Rules, use something like:
-
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            match /players/{playerId} {
-              allow read: if true;
-              allow write: if request.resource.data.name is string
-                           && request.resource.data.name.size() <= 20;
-            }
-          }
-        }
-
-        Note: this is an open/trusting setup with no server-side auth, so
-        scores can technically be spoofed by a determined user — fine for
-        a leaderboard among friends, not abuse-resistant for the public web.
-  ========================================================================= */
-
   const firebaseConfig = {
     apiKey: "AIzaSyA5IbgbCZMG_epyJnTQr795cH_vKbgRgJY",
     authDomain: "leaderboard-9d2a9.firebaseapp.com",
@@ -718,7 +800,7 @@
     appId: "1:400028609435:web:1e29b0e2d4ac63967e0f3e"
   };
 
-  let fb = null;          // holds firestore function refs once loaded
+  let fb = null;
   let db = null;
   let firebaseReady = false;
   let firebaseInitPromise = null;
@@ -784,6 +866,17 @@
         await fb.setDoc(ref, { name, bestScore:0, wins:0, losses:0, draws:0, [field]:1, updatedAt: fb.serverTimestamp() });
       }
     }catch(e){ console.error('recordMatchResult failed', e); }
+  }
+
+  async function fetchPlayerStats(name){
+    await initFirebase();
+    if(!firebaseReady) return { wins:0, losses:0, draws:0, bestScore:0 };
+    try{
+      const id = slugify(name);
+      const snap = await fb.getDoc(fb.doc(db, 'players', id));
+      if(snap.exists()) return snap.data();
+    }catch(e){ console.error('fetchPlayerStats failed', e); }
+    return { wins:0, losses:0, draws:0, bestScore:0 };
   }
 
   async function fetchSoloLeaderboard(){
@@ -1026,6 +1119,8 @@
     else if(kind === 'lose') { [392,330,262].forEach((f,i)=>tone(f,0.28,'sawtooth',0.1,i*0.12)); }
     else if(kind === 'click') tone(700,0.05,'square',0.06);
     else if(kind === 'error') { tone(180,0.16,'sawtooth',0.1); }
+    else if(kind === 'tick') tone(950,0.04,'square',0.05);
+    else if(kind === 'msg') tone(600,0.06,'sine',0.07);
   }
 
   const MUSIC_NOTES = [261.6,329.6,392.0,329.6,392.0,466.2,392.0,329.6];
@@ -1033,7 +1128,6 @@
     if(!musicOn) return;
     const ctx = ensureAudio();
     if(ctx) tone(MUSIC_NOTES[i % MUSIC_NOTES.length], 0.5, 'sine', 0.045);
-    let n = 0;
     musicTimer = setTimeout(() => musicStep(i+1), 480);
   }
   function startMusic(){ if(musicOn && !musicTimer) musicStep(0); }
@@ -1386,8 +1480,6 @@
       });
       peer.on('open', (assignedId) => resolve(assignedId));
       peer.on('error', (err) => reject(err));
-      // The signaling (WebSocket) link to the broker can drop even mid-session
-      // without the peer connection itself failing — reconnect it automatically.
       peer.on('disconnected', () => {
         if(peer && !peer.destroyed) peer.reconnect();
       });
@@ -1459,8 +1551,6 @@
     let settled = false;
     conn = peer.connect(targetId, { reliable: true });
 
-    // Both listeners are attached synchronously, before 'open' can possibly
-    // fire, so neither one is at risk of missing the event.
     conn.on('open', () => {
       settled = true;
       statusEl.className = 'lobby-status ok';
@@ -1532,7 +1622,7 @@
   function wireConnection(){
     conn.on('open', () => {
       setConnStatus(true, 'connected');
-      conn.send({ type:'hello', name: ensureName() });
+      conn.send({ type:'hello', name: ensureName(), pic: myProfilePic });
       if(isHost){
         seedShared = makeSeed();
         conn.send({ type:'start', seed: seedShared });
@@ -1550,17 +1640,20 @@
   function handleData(msg){
     if(msg.type === 'hello'){
       oppName = msg.name || 'Opponent';
+      oppProfilePic = msg.pic || null;
       document.getElementById('oppNameLabel').textContent = oppName;
-      document.getElementById('oppTag').textContent = oppName.slice(0,3).toUpperCase();
+      setProfilePicEl(document.getElementById('oppPicSm'), oppName, oppProfilePic);
+      refreshWinBadges();
     } else if(msg.type === 'start'){
       startMatch(msg.seed);
     } else if(msg.type === 'state'){
       applyOppState(msg);
     } else if(msg.type === 'toppedout'){
-      oppToppedOut = true;
-      checkMatchEnd();
+      handleOppToppedOut(msg.score);
     } else if(msg.type === 'rematch'){
       handleRematchRequest();
+    } else if(msg.type === 'chat'){
+      addChatMessage(oppName, msg.text, false);
     }
   }
 
@@ -1579,6 +1672,7 @@
     renderMyTray();
     checkMyGameOver();
     sendState();
+    resetMoveTimer();
   }
 
   function renderMyTray(){
@@ -1623,10 +1717,11 @@
     const fits = active.some(p => anyPlacementExists(myGrid, p.shape));
     if(!fits && !myToppedOut){
       myToppedOut = true;
+      stopMoveTimer();
       document.getElementById('myPanel').classList.add('topped-out');
       document.getElementById('myStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
-      conn && conn.send({ type:'toppedout' });
-      checkMatchEnd();
+      conn && conn.send({ type:'toppedout', score: myScore });
+      handleSelfToppedOut(myScore);
     }
   }
 
@@ -1642,7 +1737,7 @@
     for(let r=0;r<SIZE;r++) if(myGrid[r].every(v=>v)) fullRows.push(r);
     for(let c=0;c<SIZE;c++){ let full=true; for(let r=0;r<SIZE;r++) if(!myGrid[r][c]){full=false;break;} if(full) fullCols.push(c); }
     const total = fullRows.length + fullCols.length;
-    if(total === 0){ renderGridInto(myBoardEl, myGrid); sendState(); return; }
+    if(total === 0){ renderGridInto(myBoardEl, myGrid); sendState(); checkRaceProgress(); return; }
 
     const toClear = new Set();
     fullRows.forEach(r => { for(let c=0;c<SIZE;c++) toClear.add(r+','+c); });
@@ -1661,6 +1756,7 @@
       toClear.forEach(key => { const [r,c]=key.split(',').map(Number); myGrid[r][c]=null; cellOf(myBoardEl,r,c).classList.remove('clearing'); });
       renderGridInto(myBoardEl, myGrid);
       sendState();
+      checkRaceProgress();
     }, 360);
   }
 
@@ -1691,41 +1787,156 @@
       document.getElementById('oppPanel').classList.add('topped-out');
       document.getElementById('oppStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
     }
-    checkMatchEnd();
   }
 
+  /* ---------------- race-to-beat-score + move timer ---------------- */
+  const MOVE_TIME_LIMIT = 15;   // seconds to place a piece before one is forfeited
+  const RACE_TIME_LIMIT = 30;   // seconds the surviving player gets to beat the topped-out score
+
+  let moveTimeLeft = MOVE_TIME_LIMIT;
+  let moveTimerInterval = null;
+  let raceActive = false;
+  let raceTargetScore = null;
+  let raceTimeLeft = RACE_TIME_LIMIT;
+  let raceTimerInterval = null;
   let matchEnded = false;
-  function checkMatchEnd(){
+
+  function resetMoveTimer(){
+    stopMoveTimer();
+    if(matchEnded || myToppedOut) return;
+    moveTimeLeft = MOVE_TIME_LIMIT;
+    const box = document.getElementById('moveTimerBox');
+    const val = document.getElementById('moveTimerVal');
+    box.classList.remove('low');
+    val.textContent = moveTimeLeft;
+    moveTimerInterval = setInterval(() => {
+      moveTimeLeft--;
+      val.textContent = Math.max(0, moveTimeLeft);
+      box.classList.toggle('low', moveTimeLeft <= 5);
+      if(moveTimeLeft <= 5 && moveTimeLeft > 0) playSfx('tick');
+      if(moveTimeLeft <= 0) forfeitOnePiece();
+    }, 1000);
+  }
+  function stopMoveTimer(){ clearInterval(moveTimerInterval); moveTimerInterval = null; }
+
+  function forfeitOnePiece(){
+    if(matchEnded || myToppedOut) return;
+    const idx = myTray.findIndex(Boolean);
+    if(idx === -1){ resetMoveTimer(); return; }
+    myTray[idx] = null;
+    renderMyTray();
+    playSfx('error');
+    document.getElementById('myStatus').textContent = 'too slow — a piece was skipped';
+    setTimeout(() => { if(!matchEnded && document.getElementById('myStatus').textContent === 'too slow — a piece was skipped') document.getElementById('myStatus').textContent = ''; }, 1600);
+    if(myTray.every(t=>!t)) fillMyTray();
+    else { checkMyGameOver(); sendState(); resetMoveTimer(); }
+  }
+
+  // Called when the opponent reports they've topped out first.
+  function handleOppToppedOut(score){
+    oppToppedOut = true;
+    document.getElementById('oppPanel').classList.add('topped-out');
+    document.getElementById('oppStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
     if(matchEnded) return;
-    if(myToppedOut || oppToppedOut){
-      matchEnded = true;
-      stopBotLoop();
-      const iWon = oppToppedOut && !myToppedOut;
-      const draw = myToppedOut && oppToppedOut;
-      const title = document.getElementById('overlayTitle');
-      const note = document.getElementById('overlayNote');
-      let result;
-      if(draw){
-        title.textContent = "It's a draw!"; title.className = '';
-        note.textContent = 'both boards topped out at the same time';
-        result = 'draw';
-        playSfx('lose');
-      } else if(iWon){
-        title.textContent = 'You win!'; title.className = 'win';
-        note.textContent = 'your opponent ran out of moves';
-        result = 'win';
-        playSfx('win');
-      } else {
-        title.textContent = 'You lost'; title.className = 'lose';
-        note.textContent = 'no space left for your pieces';
-        result = 'loss';
-        playSfx('lose');
-      }
-      document.getElementById('ovMyScore').textContent = myScore;
-      document.getElementById('ovOppScore').textContent = oppScore;
-      overlay.classList.add('show');
-      if(!isVsAI) recordMatchResult(ensureName(), result);
+    if(myToppedOut){
+      // both already stopped near-simultaneously — settle by score
+      finishMatchByScore();
+      return;
     }
+    startRace(score);
+  }
+
+  // Called when I top out (locally). If opponent hasn't topped out yet, I start racing against
+  // whatever their current score is; otherwise settle immediately by comparing scores.
+  function handleSelfToppedOut(score){
+    if(matchEnded) return;
+    if(oppToppedOut){
+      finishMatchByScore();
+    } else {
+      // I topped out first — opponent's race target becomes MY score; wait for them.
+      showRaceBannerAsToppedOut(score);
+    }
+  }
+
+  function startRace(targetScore){
+    raceActive = true;
+    raceTargetScore = targetScore;
+    raceTimeLeft = RACE_TIME_LIMIT;
+    const banner = document.getElementById('raceBanner');
+    banner.classList.add('show');
+    document.getElementById('raceLabel').textContent = 'Opponent topped out — your turn to shine';
+    document.getElementById('raceTarget').textContent = `Beat ${targetScore} to win!`;
+    updateRaceTimerLabel();
+    clearInterval(raceTimerInterval);
+    raceTimerInterval = setInterval(() => {
+      raceTimeLeft--;
+      updateRaceTimerLabel();
+      if(raceTimeLeft <= 0){
+        clearInterval(raceTimerInterval);
+        finishMatchByScore();
+      }
+    }, 1000);
+    checkRaceProgress();
+  }
+
+  function showRaceBannerAsToppedOut(myFinalScore){
+    const banner = document.getElementById('raceBanner');
+    banner.classList.add('show');
+    document.getElementById('raceLabel').textContent = 'You topped out — opponent is racing to beat you';
+    document.getElementById('raceTarget').textContent = `Your score: ${myFinalScore}`;
+    document.getElementById('raceTimerVal').textContent = '';
+  }
+
+  function updateRaceTimerLabel(){
+    const m = Math.floor(Math.max(0,raceTimeLeft)/60);
+    const s = Math.max(0,raceTimeLeft) % 60;
+    document.getElementById('raceTimerVal').textContent = `${m}:${String(s).padStart(2,'0')}`;
+  }
+
+  // Called after every score change while I'm the one racing.
+  function checkRaceProgress(){
+    if(!raceActive || matchEnded) return;
+    if(myScore > raceTargetScore){
+      clearInterval(raceTimerInterval);
+      finishMatchByScore();
+    }
+  }
+
+  function finishMatchByScore(){
+    if(matchEnded) return;
+    matchEnded = true;
+    stopMoveTimer();
+    clearInterval(raceTimerInterval);
+    stopBotLoop();
+    document.getElementById('raceBanner').classList.remove('show');
+
+    let result, title, note;
+    if(myScore > oppScore){
+      result = 'win'; title = 'You win!'; note = 'you out-scored your opponent';
+    } else if(myScore < oppScore){
+      result = 'loss'; title = 'You lost'; note = "you didn't catch up in time";
+    } else {
+      result = 'draw'; title = "It's a draw!"; note = 'identical final scores';
+    }
+    const titleEl = document.getElementById('overlayTitle');
+    titleEl.textContent = title;
+    titleEl.className = result === 'win' ? 'win' : (result === 'loss' ? 'lose' : '');
+    document.getElementById('overlayNote').textContent = note;
+    document.getElementById('ovMyScore').textContent = myScore;
+    document.getElementById('ovOppScore').textContent = oppScore;
+    playSfx(result === 'win' ? 'win' : 'lose');
+    overlay.classList.add('show');
+
+    if(result === 'win') bumpWinBadge('me');
+    else if(result === 'loss') bumpWinBadge('opp');
+
+    if(!isVsAI) recordMatchResult(ensureName(), result);
+  }
+
+  function checkMatchEnd(){
+    // Legacy hook kept for the simultaneous-topout case coming from applyOppState.
+    if(matchEnded) return;
+    if(myToppedOut && oppToppedOut) finishMatchByScore();
   }
 
   function attachDragHandlers(pieceEl, slotIndex){
@@ -1811,7 +2022,7 @@
       myTray[dragging.slotIndex] = null;
       renderMyTray();
       if(myTray.every(t=>!t)) fillMyTray();
-      else { checkMyGameOver(); sendState(); }
+      else { checkMyGameOver(); sendState(); resetMoveTimer(); }
     }
     dragging = null;
   }
@@ -1882,10 +2093,7 @@
     if(!isVsAI || matchEnded || oppToppedOut){ stopBotLoop(); return; }
     const active = oppTray.filter(Boolean);
     if(active.length && !active.some(p => anyPlacementExists(oppGrid, p.shape))){
-      oppToppedOut = true;
-      document.getElementById('oppPanel').classList.add('topped-out');
-      document.getElementById('oppStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
-      checkMatchEnd();
+      handleOppToppedOut(oppScore);
       return;
     }
     const move = botFindBestMove();
@@ -1894,7 +2102,7 @@
     oppTray[move.idx] = null;
     if(oppTray.every(t=>!t)) fillOppTrayBot();
     renderOppMiniTray();
-    checkMatchEnd();
+    if(raceActive) checkRaceProgress();
   }
 
   function startBotLoop(){
@@ -1907,6 +2115,10 @@
   function startMatch(seed){
     matchActive = true;
     matchEnded = false;
+    raceActive = false;
+    raceTargetScore = null;
+    clearInterval(raceTimerInterval);
+    document.getElementById('raceBanner').classList.remove('show');
     rngState = seed;
     myGrid = blankGrid(); oppGrid = blankGrid();
     myTray = [null,null,null]; oppTray = [null,null,null];
@@ -1915,12 +2127,15 @@
 
     document.getElementById('myNameLabel').textContent = ensureName();
     document.getElementById('oppNameLabel').textContent = isVsAI ? 'AI Bot' : oppName;
-    document.getElementById('oppTag').textContent = isVsAI ? 'BOT' : 'OPP';
+    setProfilePicEl(document.getElementById('myPicSm'), ensureName(), myProfilePic);
+    setProfilePicEl(document.getElementById('oppPicSm'), isVsAI ? 'AI Bot' : oppName, isVsAI ? null : oppProfilePic);
     document.getElementById('myPanel').classList.remove('topped-out');
     document.getElementById('oppPanel').classList.remove('topped-out');
     document.getElementById('myStatus').innerHTML = '';
     document.getElementById('oppStatus').innerHTML = '';
     overlay.classList.remove('show');
+    document.getElementById('chatLog').innerHTML = '';
+    document.getElementById('chatWrap').style.display = isVsAI ? 'none' : 'flex';
 
     buildBoardDom(myBoardEl);
     buildBoardDom(oppBoardEl);
@@ -1933,6 +2148,7 @@
     setConnStatus(true, isVsAI ? 'vs AI' : 'in match');
     showScreen('screen-mp-match');
     if(isVsAI) startBotLoop();
+    refreshWinBadges();
   }
 
   let rematchRequestedByMe = false;
@@ -1976,6 +2192,9 @@
 
   function leaveMatch(){
     stopBotLoop();
+    stopMoveTimer();
+    clearInterval(raceTimerInterval);
+    leavePresenceAndQueue();
     if(conn) conn.close();
     if(peer) peer.destroy();
     location.reload();
@@ -1985,6 +2204,60 @@
   document.getElementById('rematchBtn2').addEventListener('click', requestRematch);
   document.getElementById('leaveBtn').addEventListener('click', leaveMatch);
   document.getElementById('overlayMenuBtn').addEventListener('click', leaveMatch);
+
+  /* =========================================================================
+     WIN BADGES
+  ========================================================================= */
+  async function refreshWinBadges(){
+    const meStats = await fetchPlayerStats(ensureName());
+    document.getElementById('myWinBadge').textContent = '🏆' + (meStats.wins||0);
+    if(!isVsAI && oppName && oppName !== 'Opponent'){
+      const oppStats = await fetchPlayerStats(oppName);
+      document.getElementById('oppWinBadge').textContent = '🏆' + (oppStats.wins||0);
+    } else if(isVsAI){
+      document.getElementById('oppWinBadge').textContent = '🏆—';
+    }
+  }
+  function bumpWinBadge(who){
+    const el = document.getElementById(who === 'me' ? 'myWinBadge' : 'oppWinBadge');
+    const n = parseInt((el.textContent||'').replace(/\D/g,''),10) || 0;
+    el.textContent = '🏆' + (n+1);
+  }
+
+  /* =========================================================================
+     CHAT
+  ========================================================================= */
+  function addChatMessage(who, text, isMe){
+    const log = document.getElementById('chatLog');
+    const row = document.createElement('div');
+    row.className = 'chat-msg' + (isMe ? ' me' : '');
+    const span = document.createElement('span');
+    span.className = 'who';
+    span.textContent = who + ': ';
+    row.appendChild(span);
+    row.appendChild(document.createTextNode(text));
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    if(!isMe) playSfx('msg');
+  }
+  function addSysMessage(text){
+    const log = document.getElementById('chatLog');
+    const row = document.createElement('div');
+    row.className = 'chat-msg sys';
+    row.textContent = text;
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+  document.getElementById('chatSendBtn').addEventListener('click', sendChat);
+  document.getElementById('chatInput').addEventListener('keydown', (e) => { if(e.key==='Enter') sendChat(); });
+  function sendChat(){
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if(!text || isVsAI) return;
+    addChatMessage(ensureName(), text, true);
+    if(conn && conn.open) conn.send({ type:'chat', text });
+    input.value = '';
+  }
 
   /* =========================================================================
      LEADERBOARD TAB SWITCHING
@@ -1998,6 +2271,236 @@
     });
   });
   document.getElementById('lbBackBtn').addEventListener('click', () => showScreen('screen-home'));
+
+  /* =========================================================================
+     PROFILE PICTURE
+  ========================================================================= */
+  const PIC_KEY = 'blockhoard_profilepic';
+  let myProfilePic = localStorage.getItem(PIC_KEY) || null;
+  let oppProfilePic = null;
+
+  function setProfilePicEl(el, name, dataUrl){
+    if(dataUrl){
+      el.innerHTML = `<img src="${dataUrl}" alt="">`;
+    } else {
+      el.innerHTML = '';
+      el.textContent = (name||'?').trim().charAt(0).toUpperCase() || '?';
+    }
+  }
+  function refreshProfilePicUI(){
+    const btn = document.getElementById('profilePicBtn');
+    if(myProfilePic){
+      btn.innerHTML = `<img src="${myProfilePic}" alt="">`;
+    } else {
+      btn.innerHTML = '<span id="profilePicInitial">' + ((playerName||'?').trim().charAt(0).toUpperCase()||'?') + '</span>';
+    }
+  }
+  document.getElementById('profilePicBtn').addEventListener('click', () => document.getElementById('profilePicInput').click());
+  document.getElementById('profilePicInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    if(file.size > 1.5*1024*1024){
+      alert('Please choose an image under 1.5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      myProfilePic = reader.result;
+      localStorage.setItem(PIC_KEY, myProfilePic);
+      refreshProfilePicUI();
+      playSfx('click');
+    };
+    reader.readAsDataURL(file);
+  });
+  refreshProfilePicUI();
+
+  /* =========================================================================
+     CUSTOMIZATION — background theme (reuses theme swatches) + block color sets
+  ========================================================================= */
+  const BLOCK_SETS = {
+    default: { label:'Classic', colors:['#ffb020','#ff5c5c','#2fe6a0','#3aa0ff','#b565d6','#ff4d9d'] },
+    pastel:  { label:'Pastel',  colors:['#ffd7a8','#ffb0b0','#a8e6c9','#a8d4ff','#d4b0ff','#ffb0e0'] },
+    neonx:   { label:'Neon',    colors:['#faff00','#ff00e0','#00ffd0','#00aaff','#c400ff','#ff2b2b'] },
+    mono:    { label:'Mono',    colors:['#e8e8f0','#b8b8d0','#8888b0','#5c5c88','#7070a0','#c0c0e0'] },
+  };
+  let blockSetKey = localStorage.getItem('blockhoard_blockset') || 'default';
+
+  function applyBlockSet(key){
+    blockSetKey = key;
+    const set = BLOCK_SETS[key] || BLOCK_SETS.default;
+    const names = ['--gem-amber','--gem-coral','--gem-emerald','--gem-sapphire','--gem-amethyst','--gem-rose'];
+    names.forEach((v,i) => document.documentElement.style.setProperty(v, set.colors[i]));
+    localStorage.setItem('blockhoard_blockset', key);
+    document.querySelectorAll('.block-swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.set === key));
+  }
+  function buildBlockSwatches(){
+    const row = document.getElementById('blockSwatchRow');
+    row.innerHTML = '';
+    Object.keys(BLOCK_SETS).forEach(key => {
+      const set = BLOCK_SETS[key];
+      const sw = document.createElement('div');
+      sw.className = 'block-swatch' + (key === blockSetKey ? ' active' : '');
+      sw.dataset.set = key;
+      sw.title = set.label;
+      sw.style.setProperty('--c', `linear-gradient(135deg, ${set.colors[0]}, ${set.colors[3]})`);
+      sw.style.background = `linear-gradient(135deg, ${set.colors[0]}, ${set.colors[3]})`;
+      sw.addEventListener('click', () => { applyBlockSet(key); playSfx('click'); });
+      row.appendChild(sw);
+    });
+  }
+  buildBlockSwatches();
+  applyBlockSet(blockSetKey);
+
+  /* =========================================================================
+     ONLINE PRESENCE + PLAYER COUNT + QUICK MATCH QUEUE (Firestore)
+     Presence docs live in `presence/{name}` with a heartbeat timestamp;
+     anything older than ~25s is treated as offline. The quick-match queue
+     lives in `queue/{name}` — the first two waiting players pair up.
+  ========================================================================= */
+  let presenceInterval = null;
+  let onlineCountInterval = null;
+  let queueUnsub = null;
+  let inQueue = false;
+
+  async function touchPresence(){
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{
+      const ref = fb.doc(db, 'presence', slugify(ensureName()));
+      await fb.setDoc(ref, { name: ensureName(), lastSeen: fb.serverTimestamp() });
+    }catch(e){ /* non-fatal */ }
+  }
+  async function clearPresence(){
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{ await fb.deleteDoc(fb.doc(db, 'presence', slugify(ensureName()))); }catch(e){}
+  }
+  async function refreshOnlineCount(){
+    await initFirebase();
+    const label = document.getElementById('onlineCountLabel');
+    if(!firebaseReady){ label.textContent = 'online count unavailable'; return; }
+    try{
+      const cutoff = new Date(Date.now() - 25000);
+      const q = fb.query(fb.collection(db,'presence'), fb.where('lastSeen','>', fb.Timestamp.fromDate(cutoff)));
+      const snap = await fb.getDocs(q);
+      label.textContent = `${snap.size} player${snap.size===1?'':'s'} online`;
+    }catch(e){ label.textContent = 'online count unavailable'; }
+  }
+  function startPresenceLoop(){
+    touchPresence();
+    refreshOnlineCount();
+    clearInterval(presenceInterval);
+    clearInterval(onlineCountInterval);
+    presenceInterval = setInterval(touchPresence, 15000);
+    onlineCountInterval = setInterval(refreshOnlineCount, 10000);
+  }
+  function leavePresenceAndQueue(){
+    clearPresence();
+    leaveQueue();
+    clearInterval(presenceInterval);
+    clearInterval(onlineCountInterval);
+  }
+  window.addEventListener('beforeunload', () => { clearPresence(); leaveQueue(); });
+
+  async function joinQueue(){
+    await initFirebase();
+    const statusEl = document.getElementById('quickStatus');
+    if(!firebaseReady){
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = 'Quick match needs the leaderboard backend, which isn\'t configured yet.';
+      return;
+    }
+    ensureName();
+    inQueue = true;
+    document.getElementById('quickMatchBtn').style.display = 'none';
+    document.getElementById('cancelQuickBtn').style.display = '';
+    statusEl.className = 'lobby-status';
+    statusEl.textContent = 'searching for an opponent…';
+
+    const myId = slugify(playerName);
+    const myDocRef = fb.doc(db, 'queue', myId);
+
+    // Look for someone else already waiting.
+    const q = fb.query(fb.collection(db,'queue'), fb.orderBy('joinedAt','asc'), fb.limit(5));
+    const snap = await fb.getDocs(q);
+    const candidate = snap.docs.find(d => d.id !== myId && !d.data().matchedWith);
+
+    if(candidate){
+      // Pair with them: write a match record both sides can read.
+      const roomCode = genRoomCode();
+      await fb.setDoc(fb.doc(db,'queue',candidate.id), { matchedWith: myId, roomCode }, { merge:true });
+      await fb.deleteDoc(myDocRef).catch(()=>{});
+      statusEl.className = 'lobby-status ok';
+      statusEl.textContent = 'opponent found — connecting…';
+      inQueue = false;
+      document.getElementById('quickMatchBtn').style.display = '';
+      document.getElementById('cancelQuickBtn').style.display = 'none';
+      startQuickMatchAsJoiner(roomCode);
+      return;
+    }
+
+    // Nobody waiting — post myself and listen for someone to claim me.
+    await fb.setDoc(myDocRef, { name: playerName, joinedAt: fb.serverTimestamp(), matchedWith: null, roomCode: null });
+    queueUnsub = fb.onSnapshot(myDocRef, (docSnap) => {
+      if(!inQueue) return;
+      const data = docSnap.data();
+      if(data && data.matchedWith && data.roomCode){
+        statusEl.className = 'lobby-status ok';
+        statusEl.textContent = 'opponent found — connecting…';
+        inQueue = false;
+        document.getElementById('quickMatchBtn').style.display = '';
+        document.getElementById('cancelQuickBtn').style.display = 'none';
+        if(queueUnsub){ queueUnsub(); queueUnsub = null; }
+        startQuickMatchAsHost(data.roomCode);
+      }
+    });
+  }
+
+  async function leaveQueue(){
+    inQueue = false;
+    if(queueUnsub){ queueUnsub(); queueUnsub = null; }
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{ await fb.deleteDoc(fb.doc(db,'queue', slugify(playerName))); }catch(e){}
+  }
+
+  function startQuickMatchAsHost(roomCode){
+    // I was waiting in queue; the other player claimed me and will join this code.
+    (async () => {
+      if(!peerLibAvailable()) return;
+      destroyPeer();
+      try{
+        await initPeer('blockhoard-' + roomCode);
+        myRoomCode = roomCode;
+        isHost = true;
+        isVsAI = false;
+        setConnStatus(false, 'waiting for opponent');
+        peer.on('connection', (c) => { if(conn){ c.close(); return; } conn = c; wireConnection(); });
+      }catch(e){ /* fall back silently */ }
+    })();
+  }
+  function startQuickMatchAsJoiner(roomCode){
+    (async () => {
+      if(!peerLibAvailable()) return;
+      destroyPeer();
+      try{
+        await initPeer(undefined);
+        isHost = false;
+        isVsAI = false;
+        const statusEl = document.getElementById('quickStatus');
+        attemptJoin(roomCode, statusEl, document.getElementById('quickMatchBtn'), 0);
+      }catch(e){ /* fall back silently */ }
+    })();
+  }
+
+  document.getElementById('quickMatchBtn').addEventListener('click', joinQueue);
+  document.getElementById('cancelQuickBtn').addEventListener('click', () => {
+    leaveQueue();
+    document.getElementById('quickMatchBtn').style.display = '';
+    document.getElementById('cancelQuickBtn').style.display = 'none';
+    document.getElementById('quickStatus').className = 'lobby-status';
+    document.getElementById('quickStatus').textContent = 'search cancelled';
+  });
 
   /* =========================================================================
      MENU WIRING
@@ -2023,6 +2526,9 @@
     showScreen('screen-leaderboard');
     loadLeaderboards();
   });
+
+  ensureName();
+  startPresenceLoop();
 
 })();
 </script>
