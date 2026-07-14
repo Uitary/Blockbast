@@ -6,34 +6,56 @@
 <title>Blockhoard — solo, 1v1 &amp; leaderboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 <style>
   :root{
-    --bg-deep: #10112b;
-    --bg-panel: #1a1c44;
-    --bg-panel-2: #21234f;
-    --grid-cell: #262a5c;
-    --ink: #e9e8ff;
-    --ink-dim: #9a9bc9;
-    --cyan: #5fe8e0;
-    --gem-amber: #f2a93b;
-    --gem-coral: #f2665e;
-    --gem-emerald: #3fc98a;
-    --gem-sapphire: #4e9ff5;
+    --bg-deep: #170f3d;
+    --bg-panel: #2a1c5c;
+    --bg-panel-2: #35257a;
+    --grid-cell: #382875;
+    --ink: #fff8f0;
+    --ink-dim: #b6a9e8;
+    --cyan: #35f0d0;
+    --pink: #ff4d9d;
+    --amber: #ffb020;
+    --grape: #a463ff;
+    --gem-amber: #ffb020;
+    --gem-coral: #ff5c5c;
+    --gem-emerald: #2fe6a0;
+    --gem-sapphire: #3aa0ff;
     --gem-amethyst: #b565d6;
-    --gem-rose: #f2569e;
-    --danger: #f2665e;
-    --win: #3fc98a;
+    --gem-rose: #ff4d9d;
+    --danger: #ff5c5c;
+    --win: #2fe6a0;
+  }
+  :root[data-theme="sunset"]{
+    --bg-deep:#2b1330; --bg-panel:#3a1a3f; --bg-panel-2:#45204c; --grid-cell:#4a2450;
+    --ink:#fff1e6; --ink-dim:#d3a8c9; --cyan:#ffb15c;
+    --pink:#ff5d8f; --amber:#ffd166; --grape:#c987e0;
+    --gem-amber:#ffb15c; --gem-coral:#ff6f59; --gem-emerald:#6bd68a; --gem-sapphire:#ff8fb1;
+    --gem-amethyst:#c987e0; --gem-rose:#ff5d8f; --danger:#ff6f59; --win:#6bd68a;
+  }
+  :root[data-theme="frost"]{
+    --bg-deep:#0c1b2b; --bg-panel:#132a3f; --bg-panel-2:#17324a; --grid-cell:#1c3a54;
+    --ink:#eaf6ff; --ink-dim:#8fb4cc; --cyan:#7fe3ff;
+    --pink:#ff9ecb; --amber:#ffd166; --grape:#a3a1ff;
+    --gem-amber:#ffd166; --gem-coral:#ff8a80; --gem-emerald:#6fe3c0; --gem-sapphire:#7fc4ff;
+    --gem-amethyst:#a3a1ff; --gem-rose:#ff9ecb; --danger:#ff8a80; --win:#6fe3c0;
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html{ height: -webkit-fill-available; }
   html,body{
     margin:0; padding:0; min-height:100%;
-    background: radial-gradient(circle at 50% 0%, #191c48 0%, var(--bg-deep) 60%);
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255,77,157,0.25), transparent 40%),
+      radial-gradient(circle at 88% 18%, rgba(53,240,208,0.2), transparent 38%),
+      radial-gradient(circle at 75% 85%, rgba(164,99,255,0.28), transparent 42%),
+      radial-gradient(circle at 10% 90%, rgba(255,176,32,0.16), transparent 38%),
+      var(--bg-deep);
     color: var(--ink);
-    font-family: 'Baloo 2', sans-serif;
+    font-family: 'Fredoka', 'Baloo 2', sans-serif;
     overflow-x:hidden;
     overscroll-behavior-y: none;
   }
@@ -57,24 +79,69 @@
   }
   .brand{ display:flex; flex-direction:column; line-height:1; min-width:0; }
   .brand-name{
-    font-weight:800; font-size:clamp(19px, 5.5vw, 24px); letter-spacing:0.5px;
-    background: linear-gradient(120deg, var(--cyan), var(--gem-sapphire) 60%, var(--gem-amethyst));
+    font-weight:700; font-size:clamp(22px, 6.5vw, 30px); letter-spacing:0.2px;
+    background: linear-gradient(120deg, var(--pink), var(--amber) 45%, var(--cyan) 75%, var(--grape));
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    white-space:nowrap; cursor:pointer;
+    white-space:nowrap; cursor:pointer; transition: transform 0.15s ease;
+    display:inline-block;
   }
+  .brand-name:hover{ transform: rotate(-2deg) scale(1.03); }
   .brand-sub{
     font-family:'Space Mono', monospace; font-size:9.5px; letter-spacing:1.5px;
     text-transform:uppercase; color: var(--ink-dim); margin-top:2px; white-space:nowrap;
   }
   .pill{
     font-family:'Space Mono', monospace; font-size:11px;
-    padding:6px 12px; border-radius:20px;
-    background: var(--bg-panel); border:1px solid #2e315f;
+    padding:7px 14px; border-radius:20px;
+    background: var(--bg-panel); border:2px solid #3f2f85;
     display:flex; align-items:center; gap:6px; white-space:nowrap;
+    box-shadow: 0 3px 0 #1a1140;
   }
   .pill .dot{ width:8px; height:8px; border-radius:50%; background:#5a5d8f; flex-shrink:0; }
   .pill.online .dot{ background: var(--win); box-shadow:0 0 8px var(--win); }
   .pill.offline .dot{ background: var(--danger); }
+
+  .icon-btn{
+    width:40px; height:40px; border-radius:50%; background:var(--bg-panel);
+    border:2px solid #4a3899; color:var(--ink); display:flex; align-items:center; justify-content:center;
+    font-size:16px; cursor:pointer; flex-shrink:0; transition: transform 0.08s ease, box-shadow 0.08s ease;
+    box-shadow: 0 4px 0 #1a1140;
+  }
+  .icon-btn:hover{ filter:brightness(1.1); }
+  .icon-btn:active{ transform: translateY(3px); box-shadow: 0 1px 0 #1a1140; }
+  .header-actions{ display:flex; align-items:center; gap:8px; }
+
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 2px; text-align:left; }
+  .settings-row .lbl{ font-weight:700; font-size:13.5px; }
+  .settings-row .desc{ font-family:'Space Mono', monospace; font-size:10px; color:var(--ink-dim); margin-top:2px; }
+  .switch{
+    width:44px; height:25px; border-radius:20px; background:#2e315f; position:relative; cursor:pointer;
+    flex-shrink:0; transition: background 0.2s ease; border:none;
+  }
+  .switch::after{
+    content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%;
+    background:#e9e8ff; transition: transform 0.2s ease;
+  }
+  .switch.on{ background: linear-gradient(120deg, var(--pink), var(--amber)); }
+  .switch.on::after{ transform: translateX(19px); }
+  .theme-swatches{ display:flex; gap:10px; justify-content:center; margin-top:4px; }
+  .theme-swatch{
+    width:38px; height:38px; border-radius:50%; cursor:pointer; border:3px solid transparent;
+    background: linear-gradient(135deg, var(--sw-a), var(--sw-b));
+    transition: transform 0.15s ease;
+  }
+  .theme-swatch:hover{ transform: scale(1.1); }
+  .theme-swatch.active{ border-color:var(--ink); }
+
+  .mode-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; width:100%; max-width:340px; margin-bottom:10px; }
+  .mode-tab{
+    flex:1; text-align:center; padding:8px 0; border-radius:9px; cursor:pointer;
+    font-weight:700; font-size:12.5px; color:var(--ink-dim); transition: all 0.15s ease;
+  }
+  .mode-tab.active{ background: linear-gradient(120deg, var(--pink), var(--amber)); color:#2a0f1e; font-weight:700; box-shadow: 0 3px 0 #b3225f; }
+  .score-box.timer .value{ color: var(--gem-coral); }
+  .score-box.timer.low .value{ color: var(--danger); animation: timerPulse 0.6s ease infinite; }
+  @keyframes timerPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
 
   /* ---------- screens ---------- */
   .screen{ display:none; width:100%; flex-direction:column; align-items:center; }
@@ -84,38 +151,47 @@
   .menu-card{
     width:100%; max-width:420px;
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border:1px solid #2c2f60; border-radius:22px;
-    padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 24px);
+    border:3px solid #4a3899; border-radius:30px;
+    padding: clamp(22px, 6vw, 30px) clamp(18px, 5vw, 26px);
     text-align:center;
-    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 0 #1a1140, 0 22px 50px -20px rgba(0,0,0,0.6);
+    animation: cardBounceIn 0.45s cubic-bezier(.34,1.56,.64,1);
   }
-  .menu-card h2{ margin:0 0 6px; font-size:clamp(17px, 4.5vw, 20px); }
+  @keyframes cardBounceIn{ 0%{ transform: scale(0.9) translateY(14px); opacity:0; } 100%{ transform: scale(1) translateY(0); opacity:1; } }
+  .menu-card h2{ margin:0 0 6px; font-size:clamp(19px, 5vw, 23px); font-weight:600; }
   .menu-card p.sub{
     font-family:'Space Mono', monospace; font-size:11.5px; color:var(--ink-dim);
     margin:0 0 18px; line-height:1.5;
   }
-  .menu-btns{ display:flex; flex-direction:column; gap:10px; margin-top:6px; }
-  .name-row{ display:flex; gap:8px; margin-bottom:8px; }
-  input#nameInput{
-    flex:1; min-width:0; padding:12px; font-size:15px; text-align:left;
-    font-family:'Baloo 2', sans-serif; font-weight:700;
-    background:#14163a; border:1px solid #33366e; border-radius:12px;
-    color:var(--ink);
+  .menu-btns{ display:flex; flex-direction:column; gap:12px; margin-top:8px; }
+  .name-edit{ display:flex; align-items:center; gap:6px; position:relative; }
+  .name-edit input#nameInput{
+    width:clamp(84px, 22vw, 130px); padding:9px 12px; font-size:12.5px; text-align:left;
+    font-family:'Fredoka', 'Baloo 2', sans-serif; font-weight:600;
+    background:#1c1348; border:2px solid #4a3899; border-radius:20px;
+    color:var(--ink); box-shadow: 0 3px 0 #1a1140;
   }
-  input#nameInput:focus{ outline:none; border-color:var(--cyan); }
-  .name-row button{ width:auto; flex-shrink:0; padding:0 16px; }
+  .name-edit input#nameInput:focus{ outline:none; border-color:var(--cyan); }
+  .name-edit input#nameInput::placeholder{ color:#7a6cc4; }
+  #nameStatus.lobby-status{
+    position:absolute; top:calc(100% + 6px); right:0; margin:0; min-height:0;
+    background: var(--bg-panel); border:2px solid #4a3899; border-radius:10px;
+    padding:5px 10px; font-size:10px; white-space:nowrap; z-index:30;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  #nameStatus.lobby-status:empty{ display:none; }
 
   /* ---------- lobby (1v1) ---------- */
-  .lobby-tabs{ display:flex; background:#14163a; border-radius:12px; padding:4px; margin-bottom:20px; }
+  .lobby-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; margin-bottom:20px; }
   .lobby-tab{
     flex:1; text-align:center; padding:9px 0; border-radius:9px; cursor:pointer;
     font-weight:700; font-size:13.5px; color:var(--ink-dim); transition: all 0.15s ease;
   }
-  .lobby-tab.active{ background: var(--bg-panel-2); color:var(--ink); }
+  .lobby-tab.active{ background: linear-gradient(120deg, var(--pink), var(--amber)); color:#2a0f1e; font-weight:700; box-shadow: 0 3px 0 #b3225f; }
   .lobby-pane{ display:none; }
   .lobby-pane.active{ display:block; }
 
-  .my-code-box{ background:#14163a; border-radius:14px; padding:16px; margin-bottom:16px; }
+  .my-code-box{ background:#150c3d; border:2px dashed var(--grape); border-radius:18px; padding:16px; margin-bottom:16px; }
   .my-code-box .label{
     font-family:'Space Mono', monospace; font-size:10px; letter-spacing:1.5px;
     color:var(--ink-dim); text-transform:uppercase; margin-bottom:8px;
@@ -129,26 +205,29 @@
   input#joinCodeInput{
     width:100%; padding:14px; font-size:max(18px, clamp(16px, 5vw, 20px)); text-align:center;
     letter-spacing:3px; font-family:'Space Mono', monospace; font-weight:700;
-    background:#14163a; border:1px solid #33366e; border-radius:12px;
+    background:#150c3d; border:2px solid #4a3899; border-radius:16px;
     color:var(--ink); margin-bottom:14px; text-transform:uppercase;
   }
   input#joinCodeInput:focus{ outline:none; border-color: var(--cyan); }
-  input#joinCodeInput::placeholder{ color:#565a8e; letter-spacing:2px; font-size:14px; }
+  input#joinCodeInput::placeholder{ color:#7a6cc4; letter-spacing:2px; font-size:14px; }
 
   button.action{
-    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+    font-family:'Fredoka', 'Baloo 2', sans-serif; font-weight:600; font-size:15px;
     background: var(--bg-panel-2); color: var(--ink);
-    border:1px solid #33366e; padding:11px 18px; border-radius:12px;
-    cursor:pointer; transition: transform 0.08s ease, background 0.15s ease;
+    border:2px solid #4a3899; padding:13px 18px; border-radius:16px;
+    cursor:pointer; transition: transform 0.08s ease, box-shadow 0.08s ease;
     width:100%;
+    box-shadow: 0 5px 0 #241a5e;
   }
-  button.action:hover{ background:#282a5e; }
-  button.action:active{ transform: scale(0.97); }
+  button.action:hover{ filter:brightness(1.08); }
+  button.action:active{ transform: translateY(4px); box-shadow: 0 1px 0 #241a5e; }
   button.action.primary{
-    background: linear-gradient(120deg, var(--cyan), var(--gem-sapphire));
-    color:#0d0f2b; border:none;
+    background: linear-gradient(120deg, var(--pink), var(--amber));
+    color:#2a0f1e; border:none; font-weight:700;
+    box-shadow: 0 5px 0 #b3225f;
   }
-  button.action:disabled{ opacity:0.5; cursor:not-allowed; }
+  button.action.primary:active{ box-shadow: 0 1px 0 #b3225f; }
+  button.action:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
 
   .lobby-status{
     margin-top:16px; font-family:'Space Mono', monospace; font-size:12px;
@@ -160,15 +239,17 @@
   /* ---------- solo score header ---------- */
   .scores{ display:flex; gap:10px; width:100%; max-width:340px; justify-content:flex-end; margin-bottom:10px; }
   .score-box{
-    background: var(--bg-panel); border:1px solid #2e315f; border-radius:14px;
+    background: var(--bg-panel); border:2px solid #4a3899; border-radius:16px;
     padding:8px 14px; text-align:center; min-width:74px;
+    box-shadow: 0 3px 0 #1a1140;
   }
   .score-box .label{
     font-family:'Space Mono', monospace; font-size:9px; letter-spacing:1.5px;
     color: var(--ink-dim); text-transform:uppercase;
   }
   .score-box .value{ font-family:'Space Mono', monospace; font-weight:700; font-size:20px; color: var(--ink); }
-  .score-box.best .value{ color: var(--cyan); }
+  .score-box.best{ border-color: var(--amber); }
+  .score-box.best .value{ color: var(--amber); }
   .solo-topbar{ width:100%; max-width:340px; display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
   .solo-back{
     background:none; border:none; color:var(--ink-dim); font-family:'Space Mono', monospace;
@@ -193,22 +274,22 @@
   .panel{
     position:relative;
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border-radius:18px; padding:10px;
-    box-shadow: 0 16px 40px -18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
-    border: 1px solid #2c2f60; width:100%;
+    border-radius:24px; padding:10px;
+    box-shadow: 0 6px 0 #1a1140, 0 22px 40px -18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+    border: 3px solid #4a3899; width:100%;
   }
   .panel.opp{ opacity:0.92; }
-  .panel.topped-out{ box-shadow: 0 0 0 2px var(--danger), 0 16px 40px -18px rgba(0,0,0,0.55); }
+  .panel.topped-out{ box-shadow: 0 0 0 2px var(--danger), 0 6px 0 #1a1140, 0 22px 40px -18px rgba(0,0,0,0.55); }
 
   .board{
     display:grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
     gap:3px; width:100%; aspect-ratio:1/1;
-    background:#14163a; border-radius:12px; padding:6px; position:relative;
+    background:#150c3d; border-radius:16px; padding:6px; position:relative;
   }
-  .cell{ background: var(--grid-cell); border-radius:5px; position:relative; transition: background 0.12s ease; }
+  .cell{ background: var(--grid-cell); border-radius:7px; position:relative; transition: background 0.12s ease; }
   .cell.filled{ box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
-  .cell.preview-ok{ background: rgba(95,232,224,0.35); box-shadow: inset 0 0 0 2px rgba(95,232,224,0.6); }
-  .cell.preview-bad{ background: rgba(242,102,94,0.28); box-shadow: inset 0 0 0 2px rgba(242,102,94,0.55); }
+  .cell.preview-ok{ background: rgba(53,240,208,0.35); box-shadow: inset 0 0 0 2px rgba(53,240,208,0.6); }
+  .cell.preview-bad{ background: rgba(255,92,92,0.28); box-shadow: inset 0 0 0 2px rgba(255,92,92,0.55); }
   .cell.clearing{ animation: shatter 0.38s ease forwards; }
   @keyframes shatter{
     0%{ transform:scale(1); opacity:1; filter:brightness(1.8); }
@@ -219,12 +300,17 @@
     position:absolute; inset:0; border-radius:5px;
     background: linear-gradient(155deg, rgba(255,255,255,0.35), rgba(255,255,255,0) 40%), var(--c);
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.22), inset 0 2px 0 rgba(255,255,255,0.35), 0 2px 6px rgba(0,0,0,0.35);
+    animation: popIn 0.18s ease;
   }
+  @keyframes popIn{ 0%{ transform:scale(0.35); opacity:0; } 65%{ transform:scale(1.15); } 100%{ transform:scale(1); opacity:1; } }
+  .panel.combo-flash{ animation: comboPulse 0.45s ease; }
+  @keyframes comboPulse{ 0%{ box-shadow: 0 0 0 0 rgba(95,232,224,0.55), 0 16px 40px -18px rgba(0,0,0,0.55); } 100%{ box-shadow: 0 0 0 14px rgba(95,232,224,0), 0 16px 40px -18px rgba(0,0,0,0.55); } }
 
   .tray-row{ display:flex; justify-content:space-between; gap:8px; width:100%; max-width:340px; margin-top:14px; }
   .tray-slot{
-    flex:1; background: rgba(255,255,255,0.03); border:1px dashed #383c74; border-radius:12px;
+    flex:1; background: rgba(255,255,255,0.03); border:2px dashed #4a3899; border-radius:16px;
     min-height:78px; display:flex; align-items:center; justify-content:center; position:relative;
+    transition: border-color 0.15s ease;
   }
   .tray-slot.empty{ opacity:0.35; }
   .piece{ display:grid; cursor:grab; touch-action:none; padding:4px; }
@@ -264,10 +350,11 @@
   .overlay.show{ opacity:1; pointer-events:auto; }
   .overlay-card{
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border: 1px solid #33366e; border-radius:20px; padding:32px 30px; text-align:center;
-    width: min(85vw, 340px); transform: translateY(10px); transition: transform 0.25s ease;
+    border: 3px solid var(--grape); border-radius:26px; padding:32px 30px; text-align:center;
+    width: min(85vw, 340px); transform: translateY(10px) scale(0.94); transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 8px 0 #1a1140, 0 30px 60px -20px rgba(0,0,0,0.6);
   }
-  .overlay.show .overlay-card{ transform: translateY(0); }
+  .overlay.show .overlay-card{ transform: translateY(0) scale(1); }
   .overlay-card h2{ margin:0 0 6px; font-size:26px; }
   .overlay-card h2.win{ color: var(--win); }
   .overlay-card h2.lose{ color: var(--danger); }
@@ -280,13 +367,13 @@
   .overlay-card .stack-btns{ display:flex; flex-direction:column; gap:8px; }
 
   #comboToast, #soloComboToast{
-    position:absolute; top:6px; left:50%; transform: translate(-50%, -10px);
-    font-family:'Space Mono', monospace; font-weight:700; font-size:12px; letter-spacing:1px;
-    color: var(--cyan); opacity:0; pointer-events:none;
-    text-shadow: 0 0 12px rgba(95,232,224,0.6);
-    transition: opacity 0.25s ease, transform 0.25s ease; white-space:nowrap; z-index:5;
+    position:absolute; top:6px; left:50%; transform: translate(-50%, -10px) scale(0.7);
+    font-family:'Fredoka', 'Baloo 2', sans-serif; font-weight:700; font-size:15px; letter-spacing:0.5px;
+    color: var(--amber); opacity:0; pointer-events:none;
+    text-shadow: 0 0 14px rgba(255,176,32,0.7);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; z-index:5;
   }
-  #comboToast.show, #soloComboToast.show{ opacity:1; transform: translate(-50%, 0); }
+  #comboToast.show, #soloComboToast.show{ opacity:1; transform: translate(-50%, 0) scale(1); }
 
   .hint{
     margin-top:14px; font-family:'Space Mono', monospace; font-size:10.5px;
@@ -294,25 +381,25 @@
   }
 
   /* ---------- leaderboard ---------- */
-  .seg-tabs{ display:flex; background:#14163a; border-radius:12px; padding:4px; margin-bottom:16px; width:100%; max-width:420px; }
+  .seg-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; margin-bottom:16px; width:100%; max-width:420px; }
   .seg-tab{
     flex:1; text-align:center; padding:9px 0; border-radius:9px; cursor:pointer;
     font-weight:700; font-size:13.5px; color:var(--ink-dim); transition: all 0.15s ease;
   }
-  .seg-tab.active{ background: var(--bg-panel-2); color:var(--ink); }
+  .seg-tab.active{ background: linear-gradient(120deg, var(--pink), var(--amber)); color:#2a0f1e; font-weight:700; box-shadow: 0 3px 0 #b3225f; }
   .seg-pane{ display:none; width:100%; }
   .seg-pane.active{ display:block; }
 
-  .lb-list{ width:100%; max-width:420px; display:flex; flex-direction:column; gap:6px; margin: 0 auto 16px; }
+  .lb-list{ width:100%; max-width:420px; display:flex; flex-direction:column; gap:8px; margin: 0 auto 16px; }
   .lb-row{
     display:flex; align-items:center; justify-content:space-between;
-    background:#14163a; border-radius:10px; padding:10px 14px;
+    background:#150c3d; border:2px solid #382875; border-radius:14px; padding:10px 14px;
     font-family:'Space Mono', monospace; font-size:13px;
   }
-  .lb-row.me{ box-shadow: inset 0 0 0 1.5px var(--cyan); }
+  .lb-row.me{ border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
   .lb-rank{ width:26px; color:var(--ink-dim); font-weight:700; flex-shrink:0; }
   .lb-name{ flex:1; text-align:left; padding-left:8px; color:var(--ink); font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lb-value{ color:var(--cyan); font-weight:700; white-space:nowrap; }
+  .lb-value{ color:var(--amber); font-weight:700; white-space:nowrap; }
   .lb-sub{ font-size:10px; color:var(--ink-dim); margin-left:6px; font-weight:400; }
   .lb-empty{ text-align:center; color:var(--ink-dim); font-size:12px; padding:20px 0; }
   #lbActions{ width:100%; max-width:420px; }
@@ -359,7 +446,16 @@
       <div class="brand-name">Blockhoard</div>
       <div class="brand-sub">solo · 1v1 · leaderboard</div>
     </div>
-    <div class="pill" id="headerPill"><div class="dot"></div><span id="headerPillLabel">···</span></div>
+    <div class="header-actions">
+      <div class="name-edit">
+        <input id="nameInput" placeholder="your name" maxlength="20">
+        <button class="icon-btn" id="saveNameBtn" title="Save name">✓</button>
+        <div class="lobby-status" id="nameStatus"></div>
+      </div>
+      <button class="icon-btn" id="soundToggleBtn" title="Sound">🔊</button>
+      <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+      <div class="pill" id="headerPill"><div class="dot"></div><span id="headerPillLabel">···</span></div>
+    </div>
   </div>
 
   <!-- ============ HOME ============ -->
@@ -368,15 +464,10 @@
       <h2>Start playing</h2>
       <p class="sub">Stack gems, clear lines, and climb the leaderboard.</p>
 
-      <div class="name-row">
-        <input id="nameInput" placeholder="your name" maxlength="20">
-        <button class="action" id="saveNameBtn">Save</button>
-      </div>
-      <div class="lobby-status" id="nameStatus"></div>
-
       <div class="menu-btns">
         <button class="action primary" id="playSoloBtn">Play Solo</button>
         <button class="action primary" id="playMpBtn">Play 1v1 Online</button>
+        <button class="action" id="playAiBtn">Play vs AI</button>
         <button class="action" id="viewLeaderboardBtn">Leaderboard</button>
       </div>
     </div>
@@ -387,7 +478,12 @@
     <div class="solo-topbar">
       <button class="solo-back" id="soloBackBtn">&larr; Menu</button>
     </div>
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="classic">Classic</div>
+      <div class="mode-tab" data-mode="sprint">Sprint · 60s</div>
+    </div>
     <div class="scores">
+      <div class="score-box timer" id="soloTimerBox" style="display:none;"><div class="label">Time</div><div class="value mono" id="soloTimerVal">60</div></div>
       <div class="score-box"><div class="label">Score</div><div class="value mono" id="soloScoreVal">0</div></div>
       <div class="score-box best"><div class="label">Best</div><div class="value mono" id="soloBestVal">0</div></div>
     </div>
@@ -491,6 +587,32 @@
   </div>
 
   <div id="dragGhost"></div>
+
+  <!-- settings modal -->
+  <div class="overlay" id="settingsOverlay">
+    <div class="overlay-card" style="text-align:left;">
+      <h2 style="text-align:center;">Settings</h2>
+      <div class="settings-row">
+        <div><div class="lbl">Sound effects</div><div class="desc">place · clear · combo · win/lose</div></div>
+        <button class="switch on" id="sfxSwitch"></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="lbl">Music</div><div class="desc">ambient background loop</div></div>
+        <button class="switch" id="musicSwitch"></button>
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="lbl">Theme</div>
+        <div class="theme-swatches">
+          <div class="theme-swatch active" data-theme="default" style="--sw-a:#5fe8e0; --sw-b:#4e9ff5;" title="Neon"></div>
+          <div class="theme-swatch" data-theme="sunset" style="--sw-a:#ffb15c; --sw-b:#ff5d8f;" title="Sunset"></div>
+          <div class="theme-swatch" data-theme="frost" style="--sw-a:#7fe3ff; --sw-b:#a3a1ff;" title="Frost"></div>
+        </div>
+      </div>
+      <div class="stack-btns" style="margin-top:16px;">
+        <button class="action primary" id="settingsCloseBtn">Done</button>
+      </div>
+    </div>
+  </div>
 
   <!-- solo game-over overlay -->
   <div class="overlay" id="soloOverlay">
@@ -759,12 +881,20 @@
   document.getElementById('saveNameBtn').addEventListener('click', () => {
     const val = document.getElementById('nameInput').value.trim();
     const statusEl = document.getElementById('nameStatus');
-    if(!val){ statusEl.className = 'lobby-status err'; statusEl.textContent = 'enter a name first'; return; }
+    clearTimeout(statusEl._t);
+    if(!val){
+      statusEl.className = 'lobby-status err'; statusEl.textContent = 'enter a name first';
+      playSfx('error');
+      statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 1800);
+      return;
+    }
     playerName = val.slice(0,20);
     localStorage.setItem(NAME_KEY, playerName);
     updateHeaderPill();
     statusEl.className = 'lobby-status ok';
     statusEl.textContent = 'saved!';
+    playSfx('click');
+    statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 1400);
   });
 
   /* =========================================================================
@@ -856,6 +986,108 @@
   const dragGhost = document.getElementById('dragGhost');
 
   /* =========================================================================
+     SOUND, MUSIC & THEME SETTINGS
+  ========================================================================= */
+  let soundOn = localStorage.getItem('blockhoard_sound') !== 'off';
+  let musicOn = localStorage.getItem('blockhoard_music') === 'on';
+  let theme = localStorage.getItem('blockhoard_theme') || 'default';
+  let actx = null;
+  let musicTimer = null;
+
+  function ensureAudio(){
+    if(!actx){
+      try{ actx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+    }
+    if(actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+
+  function tone(freq, dur, type, gainPeak, delay){
+    const ctx = ensureAudio();
+    if(!ctx) return;
+    const t0 = ctx.currentTime + (delay||0);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(gainPeak||0.14, t0+0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+dur+0.02);
+  }
+
+  function playSfx(kind){
+    if(!soundOn) return;
+    if(kind === 'place') tone(300, 0.09, 'triangle', 0.12);
+    else if(kind === 'clear') { tone(520,0.14,'sine',0.16); tone(780,0.16,'sine',0.12,0.06); }
+    else if(kind === 'combo') { tone(440,0.12,'square',0.1); tone(660,0.14,'square',0.1,0.07); tone(880,0.18,'square',0.12,0.14); }
+    else if(kind === 'win') { [523,659,784,1047].forEach((f,i)=>tone(f,0.22,'triangle',0.14,i*0.1)); }
+    else if(kind === 'lose') { [392,330,262].forEach((f,i)=>tone(f,0.28,'sawtooth',0.1,i*0.12)); }
+    else if(kind === 'click') tone(700,0.05,'square',0.06);
+    else if(kind === 'error') { tone(180,0.16,'sawtooth',0.1); }
+  }
+
+  const MUSIC_NOTES = [261.6,329.6,392.0,329.6,392.0,466.2,392.0,329.6];
+  function musicStep(i){
+    if(!musicOn) return;
+    const ctx = ensureAudio();
+    if(ctx) tone(MUSIC_NOTES[i % MUSIC_NOTES.length], 0.5, 'sine', 0.045);
+    let n = 0;
+    musicTimer = setTimeout(() => musicStep(i+1), 480);
+  }
+  function startMusic(){ if(musicOn && !musicTimer) musicStep(0); }
+  function stopMusic(){ clearTimeout(musicTimer); musicTimer = null; }
+
+  function applyTheme(t){
+    theme = t;
+    document.documentElement.setAttribute('data-theme', t === 'default' ? '' : t);
+    document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === t));
+    localStorage.setItem('blockhoard_theme', t);
+  }
+
+  function updateSwitches(){
+    document.getElementById('sfxSwitch').classList.toggle('on', soundOn);
+    document.getElementById('musicSwitch').classList.toggle('on', musicOn);
+    document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
+  }
+
+  document.getElementById('sfxSwitch').addEventListener('click', () => {
+    soundOn = !soundOn;
+    localStorage.setItem('blockhoard_sound', soundOn ? 'on' : 'off');
+    updateSwitches();
+    if(soundOn) playSfx('click');
+  });
+  document.getElementById('musicSwitch').addEventListener('click', () => {
+    musicOn = !musicOn;
+    localStorage.setItem('blockhoard_music', musicOn ? 'on' : 'off');
+    updateSwitches();
+    if(musicOn) startMusic(); else stopMusic();
+  });
+  document.getElementById('soundToggleBtn').addEventListener('click', () => {
+    soundOn = !soundOn;
+    localStorage.setItem('blockhoard_sound', soundOn ? 'on' : 'off');
+    updateSwitches();
+    if(soundOn) playSfx('click');
+  });
+  document.querySelectorAll('.theme-swatch').forEach(sw => {
+    sw.addEventListener('click', () => { applyTheme(sw.dataset.theme); playSfx('click'); });
+  });
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.add('show');
+  });
+  document.getElementById('settingsCloseBtn').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.remove('show');
+  });
+  document.querySelectorAll('button.action').forEach(btn => {
+    btn.addEventListener('click', () => playSfx('click'));
+  });
+
+  applyTheme(theme);
+  updateSwitches();
+  if(musicOn) startMusic();
+
+  /* =========================================================================
      SOLO MODE
   ========================================================================= */
   let soloGrid, soloTray, soloScore, soloBest, soloGameOver, soloDragging;
@@ -917,6 +1149,9 @@
     const bonus = Math.round(total * SIZE * 10 * (total > 1 ? 1.5 : 1));
     soloScore += bonus;
     soloUpdateScore();
+    playSfx(total > 1 ? 'combo' : 'clear');
+    soloBoardEl.closest('.panel').classList.add('combo-flash');
+    setTimeout(()=>soloBoardEl.closest('.panel').classList.remove('combo-flash'), 450);
     if(total > 1) soloShowCombo(total);
 
     setTimeout(() => {
@@ -941,12 +1176,15 @@
     }
   }
 
-  function soloTriggerGameOver(){
+  function soloTriggerGameOver(reason){
     if(soloGameOver) return;
     soloGameOver = true;
+    stopSprintTimer();
     document.getElementById('soloFinalScore').textContent = soloScore;
     document.getElementById('soloOverlay').classList.add('show');
-    submitSoloScore(ensureName(), soloScore);
+    document.querySelector('#soloOverlay p').textContent = reason === 'time' ? "time's up!" : 'no space left for your pieces';
+    playSfx('lose');
+    if(soloMode === 'classic') submitSoloScore(ensureName(), soloScore);
   }
 
   function soloReset(){
@@ -959,7 +1197,42 @@
     soloTray = [null,null,null];
     soloFillTray();
     document.getElementById('soloOverlay').classList.remove('show');
+    document.querySelector('#soloOverlay h2').textContent = "Board's full";
+    startSprintTimer();
   }
+
+  let soloMode = 'classic';
+  let sprintTimeLeft = 60;
+  let sprintInterval = null;
+
+  function startSprintTimer(){
+    stopSprintTimer();
+    const box = document.getElementById('soloTimerBox');
+    if(soloMode !== 'sprint'){ box.style.display = 'none'; return; }
+    box.style.display = '';
+    sprintTimeLeft = 60;
+    document.getElementById('soloTimerVal').textContent = sprintTimeLeft;
+    box.classList.remove('low');
+    sprintInterval = setInterval(() => {
+      sprintTimeLeft--;
+      document.getElementById('soloTimerVal').textContent = sprintTimeLeft;
+      box.classList.toggle('low', sprintTimeLeft <= 10);
+      if(sprintTimeLeft <= 0){
+        stopSprintTimer();
+        soloTriggerGameOver('time');
+      }
+    }, 1000);
+  }
+  function stopSprintTimer(){ clearInterval(sprintInterval); sprintInterval = null; }
+
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      soloMode = tab.dataset.mode;
+      soloReset();
+    });
+  });
 
   function soloAttachDragHandlers(pieceEl, slotIndex){
     pieceEl.addEventListener('pointerdown', (e) => {
@@ -1040,6 +1313,7 @@
     const target = soloDragging._lastTarget;
     if(target && target.ok){
       soloPlacePiece(soloDragging.shape, soloDragging.gem, target.r0, target.c0);
+      playSfx('place');
       soloTray[soloDragging.slotIndex] = null;
       soloRenderTray();
       if(soloTray.every(t=>!t)) soloFillTray();
@@ -1062,6 +1336,7 @@
   let peer = null;
   let conn = null;
   let isHost = false;
+  let isVsAI = false;
   let myRoomCode = null;
   let seedShared = null;
   let rngState = 0;
@@ -1089,6 +1364,11 @@
     document.getElementById('headerPillLabel').textContent = label;
   }
 
+  function destroyPeer(){
+    if(conn){ try{ conn.close(); }catch(e){} conn = null; }
+    if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
+  }
+
   function initPeer(id){
     return new Promise((resolve, reject) => {
       peer = new Peer(id, {
@@ -1096,6 +1376,7 @@
         config: {
           iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:openrelay.metered.ca:80' },
             { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
             { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
@@ -1105,6 +1386,11 @@
       });
       peer.on('open', (assignedId) => resolve(assignedId));
       peer.on('error', (err) => reject(err));
+      // The signaling (WebSocket) link to the broker can drop even mid-session
+      // without the peer connection itself failing — reconnect it automatically.
+      peer.on('disconnected', () => {
+        if(peer && !peer.destroyed) peer.reconnect();
+      });
     });
   }
 
@@ -1130,6 +1416,7 @@
       return;
     }
     btn.disabled = true;
+    destroyPeer();
     statusEl.className = 'lobby-status';
     statusEl.textContent = 'setting up room…';
     try{
@@ -1167,6 +1454,53 @@
     });
   });
 
+  function attemptJoin(code, statusEl, btn, attempt){
+    const targetId = 'blockhoard-' + code;
+    let settled = false;
+    conn = peer.connect(targetId, { reliable: true });
+
+    // Both listeners are attached synchronously, before 'open' can possibly
+    // fire, so neither one is at risk of missing the event.
+    conn.on('open', () => {
+      settled = true;
+      statusEl.className = 'lobby-status ok';
+      statusEl.textContent = 'connected!';
+    });
+    wireConnection();
+
+    conn.on('error', (err) => {
+      if(settled) return;
+      if(attempt < 2){
+        statusEl.textContent = 'connection hiccup — retrying…';
+        try{ conn.close(); }catch(e){}
+        setTimeout(() => attemptJoin(code, statusEl, btn, attempt+1), 600);
+        return;
+      }
+      settled = true;
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = (err && err.type === 'peer-unavailable')
+        ? 'no room found with that code'
+        : (err && err.type)
+          ? `connection error (${err.type}) — try again`
+          : 'could not reach that room — check the code';
+      btn.disabled = false;
+    });
+
+    setTimeout(() => {
+      if(settled || matchActive) return;
+      if(attempt < 2){
+        statusEl.textContent = 'still connecting — retrying…';
+        try{ conn.close(); }catch(e){}
+        attemptJoin(code, statusEl, btn, attempt+1);
+      } else {
+        settled = true;
+        statusEl.className = 'lobby-status err';
+        statusEl.textContent = 'no response — check the code and try again';
+        btn.disabled = false;
+      }
+    }, 7000);
+  }
+
   document.getElementById('joinBtn').addEventListener('click', async () => {
     const input = document.getElementById('joinCodeInput');
     const statusEl = document.getElementById('joinStatus');
@@ -1179,34 +1513,13 @@
     }
     const btn = document.getElementById('joinBtn');
     btn.disabled = true;
+    destroyPeer();
     statusEl.className = 'lobby-status';
     statusEl.textContent = 'connecting…';
     try{
       await initPeer(undefined);
       isHost = false;
-      const targetId = 'blockhoard-' + code;
-      conn = peer.connect(targetId, { reliable: true });
-      conn.on('open', () => {
-        statusEl.className = 'lobby-status ok';
-        statusEl.textContent = 'connected!';
-        wireConnection();
-      });
-      conn.on('error', (err) => {
-        statusEl.className = 'lobby-status err';
-        statusEl.textContent = (err && err.type === 'peer-unavailable')
-          ? 'no room found with that code'
-          : (err && err.type)
-            ? `connection error (${err.type}) — try again`
-            : 'could not reach that room — check the code';
-        btn.disabled = false;
-      });
-      setTimeout(() => {
-        if(!matchActive){
-          statusEl.className = 'lobby-status err';
-          statusEl.textContent = 'no response — check the code and try again';
-          btn.disabled = false;
-        }
-      }, 9000);
+      attemptJoin(code, statusEl, btn, 0);
     } catch(err){
       statusEl.className = 'lobby-status err';
       statusEl.textContent = 'connection failed — try again';
@@ -1339,6 +1652,9 @@
     const bonus = Math.round(total * SIZE * 10 * (total > 1 ? 1.5 : 1));
     myScore += bonus;
     updateMyScore();
+    playSfx(total > 1 ? 'combo' : 'clear');
+    myBoardEl.closest('.panel').classList.add('combo-flash');
+    setTimeout(()=>myBoardEl.closest('.panel').classList.remove('combo-flash'), 450);
     if(total > 1) showCombo(total);
 
     setTimeout(() => {
@@ -1383,6 +1699,7 @@
     if(matchEnded) return;
     if(myToppedOut || oppToppedOut){
       matchEnded = true;
+      stopBotLoop();
       const iWon = oppToppedOut && !myToppedOut;
       const draw = myToppedOut && oppToppedOut;
       const title = document.getElementById('overlayTitle');
@@ -1392,19 +1709,22 @@
         title.textContent = "It's a draw!"; title.className = '';
         note.textContent = 'both boards topped out at the same time';
         result = 'draw';
+        playSfx('lose');
       } else if(iWon){
         title.textContent = 'You win!'; title.className = 'win';
         note.textContent = 'your opponent ran out of moves';
         result = 'win';
+        playSfx('win');
       } else {
         title.textContent = 'You lost'; title.className = 'lose';
         note.textContent = 'no space left for your pieces';
         result = 'loss';
+        playSfx('lose');
       }
       document.getElementById('ovMyScore').textContent = myScore;
       document.getElementById('ovOppScore').textContent = oppScore;
       overlay.classList.add('show');
-      recordMatchResult(ensureName(), result);
+      if(!isVsAI) recordMatchResult(ensureName(), result);
     }
   }
 
@@ -1487,6 +1807,7 @@
     const target = dragging._lastTarget;
     if(target && target.ok){
       placeMyPiece(dragging.shape, dragging.gem, target.r0, target.c0);
+      playSfx('place');
       myTray[dragging.slotIndex] = null;
       renderMyTray();
       if(myTray.every(t=>!t)) fillMyTray();
@@ -1494,6 +1815,94 @@
     }
     dragging = null;
   }
+
+  /* =========================================================================
+     VS AI — local bot opponent (no networking, reuses the 1v1 match screen)
+  ========================================================================= */
+  let botIntervalId = null;
+
+  function fillOppTrayBot(){
+    for(let i=0;i<3;i++) if(!oppTray[i]) oppTray[i] = { shape: mpRandomShape(), gem: mpRandomGem() };
+    renderOppMiniTray();
+  }
+
+  function simulateLinesCleared(grid, shape, r0, c0){
+    const tmp = grid.map(row => row.slice());
+    shape.forEach(([dr,dc]) => { tmp[r0+dr][c0+dc] = 'x'; });
+    let n = 0;
+    for(let r=0;r<SIZE;r++) if(tmp[r].every(v=>v)) n++;
+    for(let c=0;c<SIZE;c++){ let full=true; for(let r=0;r<SIZE;r++) if(!tmp[r][c]){full=false;break;} if(full) n++; }
+    return n;
+  }
+
+  function botFindBestMove(){
+    let best = null;
+    oppTray.forEach((piece, idx) => {
+      if(!piece) return;
+      for(let r=0;r<SIZE;r++){
+        for(let c=0;c<SIZE;c++){
+          if(!canPlace(oppGrid, piece.shape, r, c)) continue;
+          const linesCleared = simulateLinesCleared(oppGrid, piece.shape, r, c);
+          const score = linesCleared*1000 + piece.shape.length*2 + Math.random();
+          if(!best || score > best.score) best = { idx, r, c, score, piece };
+        }
+      }
+    });
+    return best;
+  }
+
+  function botPlacePiece(shape, gem, r0, c0){
+    shape.forEach(([dr,dc]) => { oppGrid[r0+dr][c0+dc] = gem; });
+    oppScore += shape.length;
+    updateOppScore();
+    botResolveLines();
+  }
+
+  function botResolveLines(){
+    const fullRows = [], fullCols = [];
+    for(let r=0;r<SIZE;r++) if(oppGrid[r].every(v=>v)) fullRows.push(r);
+    for(let c=0;c<SIZE;c++){ let full=true; for(let r=0;r<SIZE;r++) if(!oppGrid[r][c]){full=false;break;} if(full) fullCols.push(c); }
+    const total = fullRows.length + fullCols.length;
+    if(total === 0){ renderGridInto(oppBoardEl, oppGrid); return; }
+    const toClear = new Set();
+    fullRows.forEach(r => { for(let c=0;c<SIZE;c++) toClear.add(r+','+c); });
+    fullCols.forEach(c => { for(let r=0;r<SIZE;r++) toClear.add(r+','+c); });
+    toClear.forEach(key => { const [r,c]=key.split(',').map(Number); cellOf(oppBoardEl,r,c).classList.add('clearing'); });
+    const bonus = Math.round(total * SIZE * 10 * (total > 1 ? 1.5 : 1));
+    oppScore += bonus;
+    updateOppScore();
+    playSfx(total > 1 ? 'combo' : 'clear');
+    setTimeout(() => {
+      toClear.forEach(key => { const [r,c]=key.split(',').map(Number); oppGrid[r][c]=null; cellOf(oppBoardEl,r,c).classList.remove('clearing'); });
+      renderGridInto(oppBoardEl, oppGrid);
+    }, 360);
+  }
+
+  function botTakeTurn(){
+    if(!isVsAI || matchEnded || oppToppedOut){ stopBotLoop(); return; }
+    const active = oppTray.filter(Boolean);
+    if(active.length && !active.some(p => anyPlacementExists(oppGrid, p.shape))){
+      oppToppedOut = true;
+      document.getElementById('oppPanel').classList.add('topped-out');
+      document.getElementById('oppStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
+      checkMatchEnd();
+      return;
+    }
+    const move = botFindBestMove();
+    if(!move) return;
+    botPlacePiece(move.piece.shape, move.piece.gem, move.r, move.c);
+    oppTray[move.idx] = null;
+    if(oppTray.every(t=>!t)) fillOppTrayBot();
+    renderOppMiniTray();
+    checkMatchEnd();
+  }
+
+  function startBotLoop(){
+    stopBotLoop();
+    fillOppTrayBot();
+    botIntervalId = setInterval(botTakeTurn, 1100);
+  }
+  function stopBotLoop(){ clearInterval(botIntervalId); botIntervalId = null; }
 
   function startMatch(seed){
     matchActive = true;
@@ -1505,6 +1914,8 @@
     myToppedOut = false; oppToppedOut = false;
 
     document.getElementById('myNameLabel').textContent = ensureName();
+    document.getElementById('oppNameLabel').textContent = isVsAI ? 'AI Bot' : oppName;
+    document.getElementById('oppTag').textContent = isVsAI ? 'BOT' : 'OPP';
     document.getElementById('myPanel').classList.remove('topped-out');
     document.getElementById('oppPanel').classList.remove('topped-out');
     document.getElementById('myStatus').innerHTML = '';
@@ -1519,8 +1930,9 @@
 
     fillMyTray();
     renderOppMiniTray();
-    setConnStatus(true, 'in match');
+    setConnStatus(true, isVsAI ? 'vs AI' : 'in match');
     showScreen('screen-mp-match');
+    if(isVsAI) startBotLoop();
   }
 
   let rematchRequestedByMe = false;
@@ -1538,6 +1950,11 @@
   function doRematch(){
     rematchRequestedByMe = false;
     rematchRequestedByOpp = false;
+    if(isVsAI){
+      seedShared = makeSeed();
+      startMatch(seedShared);
+      return;
+    }
     if(isHost){
       seedShared = makeSeed();
       conn.send({ type:'start', seed: seedShared });
@@ -1546,6 +1963,7 @@
   }
 
   function requestRematch(){
+    if(isVsAI){ doRematch(); return; }
     if(!conn || !conn.open) return;
     rematchRequestedByMe = true;
     conn.send({ type:'rematch' });
@@ -1557,6 +1975,7 @@
   }
 
   function leaveMatch(){
+    stopBotLoop();
     if(conn) conn.close();
     if(peer) peer.destroy();
     location.reload();
@@ -1590,7 +2009,15 @@
   });
   document.getElementById('playMpBtn').addEventListener('click', () => {
     ensureName();
+    isVsAI = false;
     showScreen('screen-mp-lobby');
+  });
+  document.getElementById('playAiBtn').addEventListener('click', () => {
+    ensureName();
+    isVsAI = true;
+    isHost = true;
+    seedShared = makeSeed();
+    startMatch(seedShared);
   });
   document.getElementById('viewLeaderboardBtn').addEventListener('click', () => {
     showScreen('screen-leaderboard');
