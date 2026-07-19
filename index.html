@@ -28,6 +28,16 @@
     --gem-rose: #ff4d9d;
     --danger: #ff5c5c;
     --win: #2fe6a0;
+    --r-card: 28px;
+    --r-panel: 22px;
+    --r-btn: 16px;
+    --r-pill: 20px;
+  }
+  :root[data-shape="sharp"]{
+    --r-card: 10px;
+    --r-panel: 10px;
+    --r-btn: 8px;
+    --r-pill: 10px;
   }
   :root[data-theme="sunset"]{
     --bg-deep:#2b1330; --bg-panel:#3a1a3f; --bg-panel-2:#45204c; --grid-cell:#4a2450;
@@ -45,6 +55,18 @@
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  /* ---------- hidden but functional scrollbars ---------- */
+  html{
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *{
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  ::-webkit-scrollbar{ width:0; height:0; display:none; }
+
   html{ height: -webkit-fill-available; }
   html,body{
     margin:0; padding:0; min-height:100%;
@@ -62,8 +84,8 @@
   body{
     display:flex; flex-direction:column; align-items:center;
     min-height:100vh; min-height:100dvh; min-height:-webkit-fill-available;
-    padding: clamp(12px, 4vw, 20px) clamp(10px, 3vw, 12px) calc(clamp(20px, 6vw, 40px) + env(safe-area-inset-bottom));
-    padding-top: calc(clamp(12px, 4vw, 20px) + env(safe-area-inset-top));
+    padding: clamp(10px, 3vw, 16px) clamp(10px, 3vw, 12px) calc(clamp(14px, 4vw, 24px) + env(safe-area-inset-bottom));
+    padding-top: calc(clamp(10px, 3vw, 16px) + env(safe-area-inset-top));
     padding-left: calc(clamp(10px, 3vw, 12px) + env(safe-area-inset-left));
     padding-right: calc(clamp(10px, 3vw, 12px) + env(safe-area-inset-right));
     touch-action: pan-y;
@@ -92,7 +114,7 @@
   }
   .pill{
     font-family:'Space Mono', monospace; font-size:11px;
-    padding:7px 14px; border-radius:20px;
+    padding:7px 14px; border-radius:var(--r-pill);
     background: var(--bg-panel); border:2px solid #3f2f85;
     display:flex; align-items:center; gap:6px; white-space:nowrap;
     box-shadow: 0 3px 0 #1a1140;
@@ -133,7 +155,7 @@
   .theme-swatch:hover{ transform: scale(1.1); }
   .theme-swatch.active{ border-color:var(--ink); }
 
-  .mode-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; width:100%; max-width:340px; margin-bottom:10px; }
+  .mode-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:var(--r-btn); padding:4px; width:100%; max-width:340px; margin-bottom:10px; }
   .mode-tab{
     flex:1; text-align:center; padding:8px 0; border-radius:9px; cursor:pointer;
     font-weight:700; font-size:12.5px; color:var(--ink-dim); transition: all 0.15s ease;
@@ -142,6 +164,9 @@
   .score-box.timer .value{ color: var(--gem-coral); }
   .score-box.timer.low .value{ color: var(--danger); animation: timerPulse 0.6s ease infinite; }
   @keyframes timerPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+  .score-box.compact{ padding:4px 10px; min-width:0; }
+  .score-box.compact .label{ font-size:8px; }
+  .score-box.compact .value{ font-size:14px; }
 
   /* ---------- screens ---------- */
   .screen{ display:none; width:100%; flex-direction:column; align-items:center; }
@@ -151,7 +176,7 @@
   .menu-card{
     width:100%; max-width:420px;
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border:3px solid #4a3899; border-radius:30px;
+    border:3px solid #4a3899; border-radius:var(--r-card);
     padding: clamp(22px, 6vw, 30px) clamp(18px, 5vw, 26px);
     text-align:center;
     box-shadow: 0 8px 0 #1a1140, 0 22px 50px -20px rgba(0,0,0,0.6);
@@ -182,7 +207,7 @@
   #nameStatus.lobby-status:empty{ display:none; }
 
   /* ---------- lobby (1v1) ---------- */
-  .lobby-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; margin-bottom:20px; }
+  .lobby-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:var(--r-btn); padding:4px; margin-bottom:20px; }
   .lobby-tab{
     flex:1; text-align:center; padding:9px 0; border-radius:9px; cursor:pointer;
     font-weight:700; font-size:13.5px; color:var(--ink-dim); transition: all 0.15s ease;
@@ -191,7 +216,7 @@
   .lobby-pane{ display:none; }
   .lobby-pane.active{ display:block; }
 
-  .my-code-box{ background:#150c3d; border:2px dashed var(--grape); border-radius:18px; padding:16px; margin-bottom:16px; }
+  .my-code-box{ background:#150c3d; border:2px dashed var(--grape); border-radius:var(--r-panel); padding:16px; margin-bottom:16px; }
   .my-code-box .label{
     font-family:'Space Mono', monospace; font-size:10px; letter-spacing:1.5px;
     color:var(--ink-dim); text-transform:uppercase; margin-bottom:8px;
@@ -205,7 +230,7 @@
   input#joinCodeInput{
     width:100%; padding:14px; font-size:max(18px, clamp(16px, 5vw, 20px)); text-align:center;
     letter-spacing:3px; font-family:'Space Mono', monospace; font-weight:700;
-    background:#150c3d; border:2px solid #4a3899; border-radius:16px;
+    background:#150c3d; border:2px solid #4a3899; border-radius:var(--r-btn);
     color:var(--ink); margin-bottom:14px; text-transform:uppercase;
   }
   input#joinCodeInput:focus{ outline:none; border-color: var(--cyan); }
@@ -214,7 +239,7 @@
   button.action{
     font-family:'Fredoka', 'Baloo 2', sans-serif; font-weight:600; font-size:15px;
     background: var(--bg-panel-2); color: var(--ink);
-    border:2px solid #4a3899; padding:13px 18px; border-radius:16px;
+    border:2px solid #4a3899; padding:13px 18px; border-radius:var(--r-btn);
     cursor:pointer; transition: transform 0.08s ease, box-shadow 0.08s ease;
     width:100%;
     box-shadow: 0 5px 0 #241a5e;
@@ -236,10 +261,17 @@
   .lobby-status.err{ color: var(--danger); }
   .lobby-status.ok{ color: var(--win); }
 
+  .shape-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:var(--r-btn); padding:3px; }
+  .shape-tab{
+    flex:1; text-align:center; padding:6px 0; border-radius:calc(var(--r-btn) - 4px); cursor:pointer;
+    font-weight:700; font-size:11px; color:var(--ink-dim); transition: all 0.15s ease;
+  }
+  .shape-tab.active{ background: linear-gradient(120deg, var(--pink), var(--amber)); color:#2a0f1e; box-shadow: 0 2px 0 #b3225f; }
+
   /* ---------- solo score header ---------- */
   .scores{ display:flex; gap:10px; width:100%; max-width:340px; justify-content:flex-end; margin-bottom:10px; }
   .score-box{
-    background: var(--bg-panel); border:2px solid #4a3899; border-radius:16px;
+    background: var(--bg-panel); border:2px solid #4a3899; border-radius:var(--r-btn);
     padding:8px 14px; text-align:center; min-width:74px;
     box-shadow: 0 3px 0 #1a1140;
   }
@@ -259,9 +291,9 @@
 
   /* ---------- match layout (1v1) ---------- */
   #matchWrap{ width:100%; max-width:760px; display:flex; flex-direction:column; align-items:center; }
-  .boards-row{ display:flex; gap:18px; width:100%; justify-content:center; flex-wrap:wrap; }
+  .boards-row{ display:flex; gap:14px; width:100%; justify-content:center; flex-wrap:wrap; }
   .side{ display:flex; flex-direction:column; align-items:center; flex:1; min-width:260px; max-width:340px; }
-  .side-header{ display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:8px; }
+  .side-header{ display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:6px; }
   .side-name{ font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; min-width:0; }
   .side-name span.nm{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:130px; }
   .side-name .tag{
@@ -274,7 +306,7 @@
   .panel{
     position:relative;
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border-radius:24px; padding:10px;
+    border-radius:var(--r-panel); padding:10px;
     box-shadow: 0 6px 0 #1a1140, 0 22px 40px -18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
     border: 3px solid #4a3899; width:100%;
   }
@@ -284,7 +316,7 @@
   .board{
     display:grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
     gap:3px; width:100%; aspect-ratio:1/1;
-    background:#150c3d; border-radius:16px; padding:6px; position:relative;
+    background:#150c3d; border-radius:var(--r-panel); padding:6px; position:relative;
   }
   .cell{ background: var(--grid-cell); border-radius:7px; position:relative; transition: background 0.12s ease; }
   .cell.filled{ box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
@@ -306,9 +338,9 @@
   .panel.combo-flash{ animation: comboPulse 0.45s ease; }
   @keyframes comboPulse{ 0%{ box-shadow: 0 0 0 0 rgba(95,232,224,0.55), 0 16px 40px -18px rgba(0,0,0,0.55); } 100%{ box-shadow: 0 0 0 14px rgba(95,232,224,0), 0 16px 40px -18px rgba(0,0,0,0.55); } }
 
-  .tray-row{ display:flex; justify-content:space-between; gap:8px; width:100%; max-width:340px; margin-top:14px; }
+  .tray-row{ display:flex; justify-content:space-between; gap:8px; width:100%; max-width:340px; margin-top:10px; }
   .tray-slot{
-    flex:1; background: rgba(255,255,255,0.03); border:2px dashed #4a3899; border-radius:16px;
+    flex:1; background: rgba(255,255,255,0.03); border:2px dashed #4a3899; border-radius:var(--r-btn);
     min-height:78px; display:flex; align-items:center; justify-content:center; position:relative;
     transition: border-color 0.15s ease;
   }
@@ -327,18 +359,19 @@
     filter: drop-shadow(0 10px 16px rgba(0,0,0,0.45));
   }
 
-  .mini-tray{ display:flex; gap:5px; margin-top:10px; justify-content:center; }
+  .mini-tray{ display:flex; gap:5px; margin-top:8px; justify-content:center; min-height:12px; }
   .mini-piece{ display:flex; gap:2px; opacity:0.85; }
   .mini-cell{ width:8px; height:8px; border-radius:2px; background:#2a2d5e; }
   .mini-cell.on{ background: var(--c); }
 
   .status-strip{
-    margin-top:10px; font-family:'Space Mono', monospace; font-size:11px;
-    color: var(--ink-dim); text-align:center; min-height:16px;
+    margin-top:6px; font-family:'Space Mono', monospace; font-size:11px;
+    color: var(--ink-dim); text-align:center; min-height:14px;
   }
+  .status-strip:empty{ margin-top:0; min-height:0; }
   .topped-tag{ font-family:'Space Mono', monospace; font-size:10px; letter-spacing:1px; color: var(--danger); font-weight:700; }
 
-  .controls{ display:flex; gap:10px; margin-top:20px; width:100%; max-width:340px; }
+  .controls{ display:flex; gap:10px; margin-top:14px; width:100%; max-width:340px; }
   button.action.small{ width:auto; padding:9px 16px; font-size:13px; flex:1; }
 
   /* ---------- overlay ---------- */
@@ -346,13 +379,18 @@
     position:fixed; inset:0; background: rgba(8,9,26,0.85);
     display:flex; align-items:center; justify-content:center; z-index:1000;
     opacity:0; pointer-events:none; transition: opacity 0.25s ease;
+    padding: 16px; padding-top: calc(16px + env(safe-area-inset-top));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    overflow-y:auto;
   }
   .overlay.show{ opacity:1; pointer-events:auto; }
   .overlay-card{
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border: 3px solid var(--grape); border-radius:26px; padding:32px 30px; text-align:center;
+    border: 3px solid var(--grape); border-radius:var(--r-card); padding:32px 30px; text-align:center;
     width: min(85vw, 340px); transform: translateY(10px) scale(0.94); transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
     box-shadow: 0 8px 0 #1a1140, 0 30px 60px -20px rgba(0,0,0,0.6);
+    max-height: 82vh; max-height: 82dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    margin: auto;
   }
   .overlay.show .overlay-card{ transform: translateY(0) scale(1); }
   .overlay-card h2{ margin:0 0 6px; font-size:26px; }
@@ -376,12 +414,12 @@
   #comboToast.show, #soloComboToast.show{ opacity:1; transform: translate(-50%, 0) scale(1); }
 
   .hint{
-    margin-top:14px; font-family:'Space Mono', monospace; font-size:10.5px;
+    margin-top:8px; font-family:'Space Mono', monospace; font-size:10.5px;
     color: var(--ink-dim); text-align:center; max-width:360px;
   }
 
   /* ---------- leaderboard ---------- */
-  .seg-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:16px; padding:4px; margin-bottom:16px; width:100%; max-width:420px; }
+  .seg-tabs{ display:flex; background:#14163a; border:2px solid #382875; border-radius:var(--r-btn); padding:4px; margin-bottom:16px; width:100%; max-width:420px; }
   .seg-tab{
     flex:1; text-align:center; padding:9px 0; border-radius:9px; cursor:pointer;
     font-weight:700; font-size:13.5px; color:var(--ink-dim); transition: all 0.15s ease;
@@ -393,7 +431,7 @@
   .lb-list{ width:100%; max-width:420px; display:flex; flex-direction:column; gap:8px; margin: 0 auto 16px; }
   .lb-row{
     display:flex; align-items:center; justify-content:space-between;
-    background:#150c3d; border:2px solid #382875; border-radius:14px; padding:10px 14px;
+    background:#150c3d; border:2px solid #382875; border-radius:var(--r-btn); padding:10px 14px;
     font-family:'Space Mono', monospace; font-size:13px;
   }
   .lb-row.me{ border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
@@ -407,7 +445,7 @@
   /* ---------- new: race banner + move timer + win badges + chat + online count ---------- */
   .race-banner{
     width:100%; max-width:340px; background: linear-gradient(120deg, rgba(255,77,157,0.18), rgba(255,176,32,0.14));
-    border:2px solid var(--amber); border-radius:16px; padding:10px 14px; margin-bottom:10px;
+    border:2px solid var(--amber); border-radius:var(--r-btn); padding:7px 14px; margin-bottom:8px;
     text-align:center; display:none;
   }
   .race-banner.show{ display:block; }
@@ -423,20 +461,21 @@
 
   .online-count{
     font-family:'Space Mono', monospace; font-size:10.5px; color:var(--ink-dim);
-    margin-top:10px; display:flex; align-items:center; gap:6px; justify-content:center;
+    margin-top:6px; display:flex; align-items:center; gap:6px; justify-content:center;
   }
   .online-count .od{ width:7px; height:7px; border-radius:50%; background:var(--win); box-shadow:0 0 6px var(--win); }
 
   /* chat */
   .chat-wrap{
-    width:100%; max-width:760px; margin-top:16px;
+    width:100%; max-width:760px; margin-top:10px;
     background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
-    border:3px solid #4a3899; border-radius:20px; padding:10px;
+    border:3px solid #4a3899; border-radius:var(--r-panel); padding:8px;
     display:flex; flex-direction:column;
   }
   .chat-log{
-    height:120px; overflow-y:auto; font-family:'Space Mono', monospace; font-size:11.5px;
-    display:flex; flex-direction:column; gap:5px; padding:4px 6px; margin-bottom:8px;
+    height:76px; overflow-y:auto; font-family:'Space Mono', monospace; font-size:11.5px;
+    display:flex; flex-direction:column; gap:4px; padding:2px 6px; margin-bottom:6px;
+    -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;
   }
   .chat-msg{ line-height:1.4; word-break:break-word; }
   .chat-msg .who{ color: var(--cyan); font-weight:700; }
@@ -445,7 +484,7 @@
   .chat-input-row{ display:flex; gap:8px; }
   .chat-input-row input{
     flex:1; padding:10px 12px; font-size:13px; font-family:'Fredoka','Baloo 2',sans-serif;
-    background:#150c3d; border:2px solid #4a3899; border-radius:14px; color:var(--ink);
+    background:#150c3d; border:2px solid #4a3899; border-radius:var(--r-btn); color:var(--ink);
   }
   .chat-input-row input:focus{ outline:none; border-color:var(--cyan); }
   .chat-input-row button{
@@ -465,6 +504,50 @@
     color:var(--ink-dim); flex-shrink:0;
   }
   .profile-pic-sm img{ width:100%; height:100%; object-fit:cover; }
+
+  /* ---------- home screen: profile strip + menu ---------- */
+  .home-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    width:100%; max-width:420px;
+  }
+
+  .profile-strip{
+    display:flex; align-items:center; gap:12px; cursor:pointer;
+    width:100%; background: linear-gradient(120deg, var(--bg-panel), var(--bg-panel-2));
+    border:2px solid #4a3899; border-radius:var(--r-btn);
+    padding:9px 14px; box-shadow: 0 4px 0 #1a1140;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .profile-strip:hover{ transform: translateY(-1px); box-shadow: 0 5px 0 #1a1140; }
+  .profile-strip:active{ transform: translateY(2px); box-shadow: 0 1px 0 #1a1140; }
+  .profile-strip .profile-pic{ width:42px; height:42px; font-size:17px; margin:0; flex-shrink:0; border-width:2px; }
+  .profile-strip-info{ flex:1; min-width:0; text-align:left; }
+  .home-profile-name{ font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .home-profile-stats{ font-family:'Space Mono', monospace; font-size:10px; color:var(--ink-dim); margin-top:1px; }
+  .profile-strip-chevron{ font-size:20px; color:var(--ink-dim); flex-shrink:0; }
+
+  .hero-gems{ display:flex; justify-content:center; gap:8px; margin-bottom:10px; }
+  .hg{
+    width:16px; height:16px; border-radius:5px;
+    background: linear-gradient(155deg, rgba(255,255,255,0.5), rgba(255,255,255,0) 45%), var(--c);
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 6px rgba(0,0,0,0.3);
+    animation: hgBounce 2.4s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes hgBounce{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-6px) rotate(8deg); } }
+  @media (prefers-reduced-motion: reduce){ .hg{ animation:none; } }
+
+  .menu-utility-row{ display:flex; gap:10px; margin-top:14px; }
+  .utility-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    font-family:'Fredoka','Baloo 2',sans-serif; font-weight:600; font-size:12.5px;
+    background: rgba(255,255,255,0.03); color: var(--ink-dim);
+    border:2px solid #3f2f85; padding:9px 10px; border-radius:var(--r-btn);
+    cursor:pointer; transition: all 0.12s ease;
+  }
+  .utility-btn:hover{ color:var(--ink); border-color:#5a48a8; }
+  .utility-btn:active{ transform: translateY(2px); }
+  .utility-btn .ub-icon{ font-size:14px; }
 
   /* customization */
   .swatch-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
@@ -522,30 +605,43 @@
       <div class="brand-sub">solo · 1v1 · leaderboard</div>
     </div>
     <div class="header-actions">
-      <div class="name-edit">
-        <input id="nameInput" placeholder="your name" maxlength="20">
-        <button class="icon-btn" id="saveNameBtn" title="Save name">✓</button>
-        <div class="lobby-status" id="nameStatus"></div>
-      </div>
-      <button class="icon-btn" id="soundToggleBtn" title="Sound">🔊</button>
-      <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
       <div class="pill" id="headerPill"><div class="dot"></div><span id="headerPillLabel">···</span></div>
+      <div class="profile-chip" id="homeProfile" title="Edit profile">
+        <div class="profile-pic" id="homeProfilePic"><span id="homeProfilePicInitial">?</span></div>
+        <span class="profile-chip-name" id="homeProfileName">Guest</span>
+        <span class="win-badge" id="homeProfileStats">🏆0</span>
+      </div>
     </div>
   </div>
 
   <!-- ============ HOME ============ -->
   <div class="screen active" id="screen-home">
-    <div class="menu-card">
-      <h2>Start playing</h2>
-      <p class="sub">Stack gems, clear lines, and climb the leaderboard.</p>
+    <div class="home-wrap">
+      <div class="menu-card">
+        <div class="hero-gems" aria-hidden="true">
+          <span class="hg" style="--c:var(--gem-amber); --d:0s;"></span>
+          <span class="hg" style="--c:var(--gem-coral); --d:0.08s;"></span>
+          <span class="hg" style="--c:var(--gem-emerald); --d:0.16s;"></span>
+          <span class="hg" style="--c:var(--gem-sapphire); --d:0.24s;"></span>
+          <span class="hg" style="--c:var(--gem-amethyst); --d:0.32s;"></span>
+        </div>
+        <h2>Ready to stack?</h2>
+        <p class="sub">Clear lines, chase combos, and climb the leaderboard.</p>
 
-      <div class="menu-btns">
-        <button class="action primary" id="playSoloBtn">Play Solo</button>
-        <button class="action primary" id="playMpBtn">Play 1v1 Online</button>
-        <button class="action" id="playAiBtn">Play vs AI</button>
-        <button class="action" id="viewLeaderboardBtn">Leaderboard</button>
+        <div class="menu-btns">
+          <button class="action primary" id="playSoloBtn">Play Solo</button>
+          <button class="action primary" id="playMpBtn">Play 1v1 Online</button>
+          <button class="action" id="playAiBtn">Play vs AI</button>
+          <button class="action" id="viewLeaderboardBtn">Leaderboard</button>
+        </div>
+
+        <div class="menu-utility-row">
+          <button class="utility-btn" id="settingsBtn"><span class="ub-icon">⚙️</span>Settings</button>
+          <button class="utility-btn" id="soundToggleBtn"><span class="ub-icon">🔊</span>Sound: On</button>
+        </div>
+
+        <div class="online-count"><div class="od"></div><span id="onlineCountLabel">— players online</span></div>
       </div>
-      <div class="online-count"><div class="od"></div><span id="onlineCountLabel">— players online</span></div>
     </div>
   </div>
 
@@ -632,7 +728,7 @@
             <div id="comboToast">COMBO ×2</div>
           </div>
           <div class="tray-row" id="tray"></div>
-          <div class="score-box timer" id="moveTimerBox" style="margin:10px auto 0; width:110px;"><div class="label">Place in</div><div class="value mono" id="moveTimerVal">15</div></div>
+          <div class="score-box timer compact" id="moveTimerBox" style="margin:8px auto 0; width:auto; display:inline-flex; align-items:center; gap:6px; align-self:center;"><span class="label">Place in</span><span class="value mono" id="moveTimerVal">15</span></div>
           <div class="status-strip" id="myStatus"></div>
         </div>
 
@@ -695,6 +791,15 @@
       <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
       <p class="sub" style="text-align:center;margin-top:-6px;">tap avatar to upload a photo</p>
 
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="lbl">Display name</div>
+        <div class="name-edit" style="width:100%;">
+          <input id="nameInput" placeholder="your name" maxlength="20" style="flex:1; width:auto;">
+          <button class="icon-btn" id="saveNameBtn" title="Save name">✓</button>
+          <div class="lobby-status" id="nameStatus"></div>
+        </div>
+      </div>
+
       <div class="settings-row">
         <div><div class="lbl">Sound effects</div><div class="desc">place · clear · combo · win/lose</div></div>
         <button class="switch on" id="sfxSwitch"></button>
@@ -704,11 +809,22 @@
         <button class="switch" id="musicSwitch"></button>
       </div>
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
-        <div class="lbl">Theme</div>
+        <div class="lbl">Background theme</div>
         <div class="theme-swatches">
           <div class="theme-swatch active" data-theme="default" style="--sw-a:#5fe8e0; --sw-b:#4e9ff5;" title="Neon"></div>
           <div class="theme-swatch" data-theme="sunset" style="--sw-a:#ffb15c; --sw-b:#ff5d8f;" title="Sunset"></div>
           <div class="theme-swatch" data-theme="frost" style="--sw-a:#7fe3ff; --sw-b:#a3a1ff;" title="Frost"></div>
+        </div>
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="lbl">UI accent color</div>
+        <div class="swatch-row" id="accentSwatchRow"></div>
+      </div>
+      <div class="settings-row">
+        <div><div class="lbl">UI shape</div><div class="desc">rounded or sharp corners</div></div>
+        <div class="shape-tabs" id="shapeToggle" style="width:150px; margin:0;">
+          <div class="shape-tab active" data-shape="rounded">Rounded</div>
+          <div class="shape-tab" data-shape="sharp">Sharp</div>
         </div>
       </div>
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
@@ -790,6 +906,41 @@
     [[0,0],[1,0],[2,0],[1,1]],
     [[0,1],[1,0],[1,1],[2,1]],
   ];
+
+  /* =========================================================================
+     BACKEND (Firebase Firestore) — powers the leaderboard, online presence /
+     player count, and the quick-match queue. Lazy-loaded so a missing config
+     or no internet never breaks solo/1v1 gameplay itself.
+
+     TO ENABLE / RE-POINT THIS AT YOUR OWN PROJECT:
+     1. https://console.firebase.google.com > create a free project.
+     2. Build > Firestore Database > Create database > test mode (or rules below).
+     3. Project settings > General > "Your apps" > Add app > Web. Paste the
+        config it gives you into firebaseConfig below.
+     4. In Firestore > Rules:
+
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /players/{playerId} {
+              allow read: if true;
+              allow write: if request.resource.data.name is string
+                           && request.resource.data.name.size() <= 20;
+            }
+            match /presence/{playerId} { allow read, write: if true; }
+            match /queue/{playerId}    { allow read, write: if true; }
+          }
+        }
+
+        This is an open/trusting setup with no server-side auth — scores,
+        presence, and queue entries can technically be spoofed by a determined
+        user. Fine for a leaderboard/quick-match among friends, not
+        abuse-resistant for the public web. Quick-match pairing (joinQueue)
+        is best-effort client-side matchmaking, not transactional, so on rare
+        occasions two players queuing at the exact same instant could both
+        try to claim the same match; move pairing into a Cloud Function if
+        that matters for your use case.
+  ========================================================================= */
 
   const firebaseConfig = {
     apiKey: "AIzaSyA5IbgbCZMG_epyJnTQr795cH_vKbgRgJY",
@@ -984,6 +1135,7 @@
     playerName = val.slice(0,20);
     localStorage.setItem(NAME_KEY, playerName);
     updateHeaderPill();
+    refreshHomeProfile();
     statusEl.className = 'lobby-status ok';
     statusEl.textContent = 'saved!';
     playSfx('click');
@@ -1143,7 +1295,9 @@
   function updateSwitches(){
     document.getElementById('sfxSwitch').classList.toggle('on', soundOn);
     document.getElementById('musicSwitch').classList.toggle('on', musicOn);
-    document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
+    document.getElementById('soundToggleBtn').innerHTML = soundOn
+      ? '<span class="ub-icon">🔊</span>Sound: On'
+      : '<span class="ub-icon">🔇</span>Sound: Off';
   }
 
   document.getElementById('sfxSwitch').addEventListener('click', () => {
@@ -2308,11 +2462,26 @@
       myProfilePic = reader.result;
       localStorage.setItem(PIC_KEY, myProfilePic);
       refreshProfilePicUI();
+      refreshHomeProfile();
       playSfx('click');
     };
     reader.readAsDataURL(file);
   });
   refreshProfilePicUI();
+
+  /* ---------------- home menu profile summary ---------------- */
+  async function refreshHomeProfile(){
+    const name = ensureName();
+    setProfilePicEl(document.getElementById('homeProfilePic'), name, myProfilePic);
+    document.getElementById('homeProfileName').textContent = name;
+    const stats = await fetchPlayerStats(name);
+    document.getElementById('homeProfileStats').textContent =
+      `🏆${stats.wins||0} · ${stats.wins||0}W ${stats.losses||0}L${(stats.draws||0) ? ' ' + stats.draws + 'D' : ''}`;
+  }
+  document.getElementById('homeProfile').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.add('show');
+  });
+  refreshHomeProfile();
 
   /* =========================================================================
      CUSTOMIZATION — background theme (reuses theme swatches) + block color sets
@@ -2350,6 +2519,57 @@
   }
   buildBlockSwatches();
   applyBlockSet(blockSetKey);
+
+  /* ---------------- UI accent color (buttons, tabs, brand gradient, glows) ---------------- */
+  const ACCENT_SETS = {
+    neon:   { label:'Neon',   pink:'#ff4d9d', amber:'#ffb020', cyan:'#35f0d0', grape:'#a463ff' },
+    ocean:  { label:'Ocean',  pink:'#2e9bff', amber:'#35f0d0', cyan:'#7fd8ff', grape:'#4f6df5' },
+    citrus: { label:'Citrus', pink:'#ff5d5d', amber:'#ffcf5c', cyan:'#ff9d5c', grape:'#ff477e' },
+    forest: { label:'Forest', pink:'#3ecf8e', amber:'#c9e265', cyan:'#5cffb0', grape:'#2fae66' },
+    mono:   { label:'Mono',   pink:'#c9c9d8', amber:'#efefef', cyan:'#9a9ac0', grape:'#8686a8' },
+  };
+  let accentKey = localStorage.getItem('blockhoard_accent') || 'neon';
+
+  function applyAccent(key){
+    accentKey = key;
+    const set = ACCENT_SETS[key] || ACCENT_SETS.neon;
+    document.documentElement.style.setProperty('--pink', set.pink);
+    document.documentElement.style.setProperty('--amber', set.amber);
+    document.documentElement.style.setProperty('--cyan', set.cyan);
+    document.documentElement.style.setProperty('--grape', set.grape);
+    localStorage.setItem('blockhoard_accent', key);
+    document.querySelectorAll('.accent-swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.accent === key));
+  }
+  function buildAccentSwatches(){
+    const row = document.getElementById('accentSwatchRow');
+    row.innerHTML = '';
+    Object.keys(ACCENT_SETS).forEach(key => {
+      const set = ACCENT_SETS[key];
+      const sw = document.createElement('div');
+      sw.className = 'block-swatch accent-swatch' + (key === accentKey ? ' active' : '');
+      sw.dataset.accent = key;
+      sw.title = set.label;
+      sw.style.background = `linear-gradient(135deg, ${set.pink}, ${set.amber})`;
+      sw.addEventListener('click', () => { applyAccent(key); playSfx('click'); });
+      row.appendChild(sw);
+    });
+  }
+  buildAccentSwatches();
+  applyAccent(accentKey);
+
+  /* ---------------- UI shape (rounded vs sharp corners) ---------------- */
+  let uiShape = localStorage.getItem('blockhoard_shape') || 'rounded';
+
+  function applyShape(key){
+    uiShape = key;
+    document.documentElement.setAttribute('data-shape', key === 'sharp' ? 'sharp' : '');
+    localStorage.setItem('blockhoard_shape', key);
+    document.querySelectorAll('#shapeToggle .shape-tab').forEach(t => t.classList.toggle('active', t.dataset.shape === key));
+  }
+  document.querySelectorAll('#shapeToggle .shape-tab').forEach(tab => {
+    tab.addEventListener('click', () => { applyShape(tab.dataset.shape); playSfx('click'); });
+  });
+  applyShape(uiShape);
 
   /* =========================================================================
      ONLINE PRESENCE + PLAYER COUNT + QUICK MATCH QUEUE (Firestore)
