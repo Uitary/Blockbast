@@ -67,7 +67,8 @@
   }
   ::-webkit-scrollbar{ width:0; height:0; display:none; }
 
-  html{ height: -webkit-fill-available; }
+  /* ---------- FIX: allow real scrolling on every screen, mobile & desktop ---------- */
+  html{ height:auto; min-height:100%; }
   html,body{
     margin:0; padding:0; min-height:100%;
     background:
@@ -79,19 +80,31 @@
     color: var(--ink);
     font-family: 'Fredoka', 'Baloo 2', sans-serif;
     overflow-x:hidden;
-    overscroll-behavior-y: none;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   body{
     display:flex; flex-direction:column; align-items:center;
-    min-height:100vh; min-height:100dvh; min-height:-webkit-fill-available;
+    min-height:100vh; min-height:100dvh;
     padding: clamp(10px, 3vw, 16px) clamp(10px, 3vw, 12px) calc(clamp(14px, 4vw, 24px) + env(safe-area-inset-bottom));
-    padding-top: calc(clamp(10px, 3vw, 16px) + env(safe-area-inset-top));
+    padding-top: calc(clamp(56px, 10vw, 64px) + env(safe-area-inset-top));
     padding-left: calc(clamp(10px, 3vw, 12px) + env(safe-area-inset-left));
     padding-right: calc(clamp(10px, 3vw, 12px) + env(safe-area-inset-right));
     touch-action: pan-y;
   }
   .mono{ font-family:'Space Mono', monospace; }
   button, .lobby-tab, .seg-tab, .tray-slot{ touch-action: manipulation; }
+
+  /* ---------- global back button (always available except on Home) ---------- */
+  .back-fab{
+    position:fixed; top: calc(14px + env(safe-area-inset-top)); left: calc(14px + env(safe-area-inset-left));
+    z-index:200; width:42px; height:42px; border-radius:50%;
+    background:var(--bg-panel); border:2px solid #4a3899; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; font-size:19px; cursor:pointer;
+    box-shadow: 0 4px 0 #1a1140;
+  }
+  .back-fab:hover{ filter:brightness(1.1); }
+  .back-fab:active{ transform:translateY(3px); box-shadow:0 1px 0 #1a1140; }
 
   /* ---------- header ---------- */
   .topbar{
@@ -215,6 +228,10 @@
   .lobby-tab.active{ background: linear-gradient(120deg, var(--pink), var(--amber)); color:#2a0f1e; font-weight:700; box-shadow: 0 3px 0 #b3225f; }
   .lobby-pane{ display:none; }
   .lobby-pane.active{ display:block; }
+  .lobby-pane-note{
+    font-family:'Space Mono', monospace; font-size:10.5px; color:var(--ink-dim);
+    margin: -4px 0 14px; line-height:1.5;
+  }
 
   .my-code-box{ background:#150c3d; border:2px dashed var(--grape); border-radius:var(--r-panel); padding:16px; margin-bottom:16px; }
   .my-code-box .label{
@@ -371,6 +388,12 @@
   .status-strip:empty{ margin-top:0; min-height:0; }
   .topped-tag{ font-family:'Space Mono', monospace; font-size:10px; letter-spacing:1px; color: var(--danger); font-weight:700; }
 
+  .missed-badge{
+    font-family:'Space Mono', monospace; font-size:9px; letter-spacing:0.5px;
+    padding:2px 7px; border-radius:6px; background: rgba(255,92,92,0.14); color: var(--danger);
+    flex-shrink:0; font-weight:700;
+  }
+
   .controls{ display:flex; gap:10px; margin-top:14px; width:100%; max-width:340px; }
   button.action.small{ width:auto; padding:9px 16px; font-size:13px; flex:1; }
 
@@ -432,7 +455,7 @@
   .lb-row{
     display:flex; align-items:center; justify-content:space-between;
     background:#150c3d; border:2px solid #382875; border-radius:var(--r-btn); padding:10px 14px;
-    font-family:'Space Mono', monospace; font-size:13px;
+    font-family:'Space Mono', monospace; font-size:13px; gap:8px;
   }
   .lb-row.me{ border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
   .lb-rank{ width:26px; color:var(--ink-dim); font-weight:700; flex-shrink:0; }
@@ -442,7 +465,7 @@
   .lb-empty{ text-align:center; color:var(--ink-dim); font-size:12px; padding:20px 0; }
   #lbActions{ width:100%; max-width:420px; }
 
-  /* ---------- new: race banner + move timer + win badges + chat + online count ---------- */
+  /* ---------- race banner + move timer + win badges + chat + online count ---------- */
   .race-banner{
     width:100%; max-width:340px; background: linear-gradient(120deg, rgba(255,77,157,0.18), rgba(255,176,32,0.14));
     border:2px solid var(--amber); border-radius:var(--r-btn); padding:7px 14px; margin-bottom:8px;
@@ -511,20 +534,13 @@
     width:100%; max-width:420px;
   }
 
-  .profile-strip{
-    display:flex; align-items:center; gap:12px; cursor:pointer;
-    width:100%; background: linear-gradient(120deg, var(--bg-panel), var(--bg-panel-2));
-    border:2px solid #4a3899; border-radius:var(--r-btn);
-    padding:9px 14px; box-shadow: 0 4px 0 #1a1140;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  .profile-chip{
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+    background: var(--bg-panel); border:2px solid #4a3899; border-radius:var(--r-pill);
+    padding:5px 12px 5px 5px; box-shadow: 0 3px 0 #1a1140;
   }
-  .profile-strip:hover{ transform: translateY(-1px); box-shadow: 0 5px 0 #1a1140; }
-  .profile-strip:active{ transform: translateY(2px); box-shadow: 0 1px 0 #1a1140; }
-  .profile-strip .profile-pic{ width:42px; height:42px; font-size:17px; margin:0; flex-shrink:0; border-width:2px; }
-  .profile-strip-info{ flex:1; min-width:0; text-align:left; }
-  .home-profile-name{ font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .home-profile-stats{ font-family:'Space Mono', monospace; font-size:10px; color:var(--ink-dim); margin-top:1px; }
-  .profile-strip-chevron{ font-size:20px; color:var(--ink-dim); flex-shrink:0; }
+  .profile-chip .profile-pic{ width:30px; height:30px; margin:0; font-size:13px; border-width:2px; }
+  .profile-chip-name{ font-weight:700; font-size:12.5px; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
   .hero-gems{ display:flex; justify-content:center; gap:8px; margin-bottom:10px; }
   .hg{
@@ -537,9 +553,9 @@
   @keyframes hgBounce{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-6px) rotate(8deg); } }
   @media (prefers-reduced-motion: reduce){ .hg{ animation:none; } }
 
-  .menu-utility-row{ display:flex; gap:10px; margin-top:14px; }
+  .menu-utility-row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
   .utility-btn{
-    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    flex:1 1 30%; min-width:90px; display:flex; align-items:center; justify-content:center; gap:6px;
     font-family:'Fredoka','Baloo 2',sans-serif; font-weight:600; font-size:12.5px;
     background: rgba(255,255,255,0.03); color: var(--ink-dim);
     border:2px solid #3f2f85; padding:9px 10px; border-radius:var(--r-btn);
@@ -587,7 +603,7 @@
   }
 
   @media (max-width: 900px) and (max-height: 480px) and (orientation: landscape){
-    body{ padding-top: calc(8px + env(safe-area-inset-top)); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+    body{ padding-top: calc(56px + env(safe-area-inset-top)); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
     .topbar{ margin-bottom:8px; }
     .boards-row{ flex-direction:row; align-items:flex-start; }
     .side{ min-width:150px; max-width:220px; }
@@ -598,6 +614,8 @@
 </style>
 </head>
 <body>
+
+  <button class="back-fab" id="globalBackBtn" style="display:none;" title="Back">&larr;</button>
 
   <div class="topbar">
     <div class="brand" id="brandHome">
@@ -638,6 +656,7 @@
         <div class="menu-utility-row">
           <button class="utility-btn" id="settingsBtn"><span class="ub-icon">⚙️</span>Settings</button>
           <button class="utility-btn" id="soundToggleBtn"><span class="ub-icon">🔊</span>Sound: On</button>
+          <button class="utility-btn" id="friendsBtn"><span class="ub-icon">👥</span>Friends</button>
         </div>
 
         <div class="online-count"><div class="od"></div><span id="onlineCountLabel">— players online</span></div>
@@ -674,7 +693,7 @@
   <div class="screen" id="screen-mp-lobby">
     <div class="menu-card">
       <h2>Start a duel</h2>
-      <p class="sub">Create a room and send the code to your opponent, or enter a code someone sent you. Both players need this page open.</p>
+      <p class="sub">Create a room and send the code to your opponent, enter a code someone sent you, or get matched automatically. Both players need this page open.</p>
 
       <div class="lobby-tabs">
         <div class="lobby-tab active" data-tab="create">Create room</div>
@@ -683,6 +702,7 @@
       </div>
 
       <div class="lobby-pane active" id="pane-create">
+        <div class="lobby-pane-note">Generates a private room just for you two — share the code with a specific friend.</div>
         <div class="my-code-box">
           <div class="label">Your room code</div>
           <div class="my-code mono" id="myCode">···</div>
@@ -693,13 +713,15 @@
       </div>
 
       <div class="lobby-pane" id="pane-join">
+        <div class="lobby-pane-note">Got a code from a friend? Enter it here to join their room directly.</div>
         <input type="text" id="joinCodeInput" placeholder="enter room code" maxlength="12">
         <button class="action primary" id="joinBtn">Join room</button>
         <div class="lobby-status" id="joinStatus"></div>
       </div>
 
       <div class="lobby-pane" id="pane-quick">
-        <p class="sub" style="margin-bottom:14px;">Get matched with another player who's also looking for a game.</p>
+        <div class="lobby-pane-note">No code needed — get paired automatically with whoever else is searching right now.</div>
+        <div class="online-count" id="lobbyOnlineCount" style="margin-bottom:10px;"><div class="od"></div><span id="lobbyOnlineCountLabel">— players online</span></div>
         <button class="action primary" id="quickMatchBtn">Find opponent</button>
         <button class="action" id="cancelQuickBtn" style="display:none; margin-top:10px;">Cancel search</button>
         <div class="lobby-status" id="quickStatus"></div>
@@ -728,7 +750,10 @@
             <div id="comboToast">COMBO ×2</div>
           </div>
           <div class="tray-row" id="tray"></div>
-          <div class="score-box timer compact" id="moveTimerBox" style="margin:8px auto 0; width:auto; display:inline-flex; align-items:center; gap:6px; align-self:center;"><span class="label">Place in</span><span class="value mono" id="moveTimerVal">15</span></div>
+          <div style="display:flex; gap:8px; justify-content:center; align-items:center; margin-top:8px;">
+            <div class="score-box timer compact" id="moveTimerBox" style="margin:0; width:auto; display:inline-flex; align-items:center; gap:6px;"><span class="label">Place in</span><span class="value mono" id="moveTimerVal">15</span></div>
+            <span class="missed-badge" id="missedCounter" style="display:none;"></span>
+          </div>
           <div class="status-strip" id="myStatus"></div>
         </div>
 
@@ -758,7 +783,7 @@
         </div>
       </div>
 
-      <div class="hint">Drag a piece onto your board before your placement timer runs out. If one player tops out, the other races the clock to beat their score.</div>
+      <div class="hint">Drag a piece onto your board before your placement timer runs out. Miss 3 placements in a row and you auto-forfeit. If one player tops out, the other races the clock to beat their score.</div>
     </div>
   </div>
 
@@ -777,6 +802,23 @@
     <div class="lobby-status" id="lbStatus" style="max-width:420px;margin-left:auto;margin-right:auto;"></div>
     <div id="lbActions">
       <button class="action" id="lbBackBtn">Back to menu</button>
+    </div>
+  </div>
+
+  <!-- ============ FRIENDS ============ -->
+  <div class="screen" id="screen-friends">
+    <div class="solo-topbar">
+      <button class="solo-back" id="friendsBackBtn">&larr; Menu</button>
+    </div>
+    <div class="menu-card" style="max-width:420px;">
+      <h2>Friends</h2>
+      <p class="sub">Add friends by their display name, then chat or challenge them to a match directly.</p>
+      <div class="name-edit" style="width:100%; justify-content:center; margin-bottom:14px; position:relative;">
+        <input id="addFriendInput" placeholder="friend's display name" maxlength="20" style="flex:1;">
+        <button class="icon-btn" id="addFriendBtn" title="Add friend">+</button>
+      </div>
+      <div class="lobby-status" id="friendsStatus"></div>
+      <div class="lb-list" id="friendsList"></div>
     </div>
   </div>
 
@@ -866,6 +908,34 @@
     </div>
   </div>
 
+  <!-- friend chat modal -->
+  <div class="overlay" id="friendChatOverlay">
+    <div class="overlay-card" style="text-align:left;">
+      <h2 id="friendChatTitle" style="text-align:center;">Chat</h2>
+      <div class="chat-log" id="friendChatLog" style="height:180px;"></div>
+      <div class="chat-input-row">
+        <input id="friendChatInput" placeholder="say something…" maxlength="140">
+        <button class="action primary" id="friendChatSendBtn">Send</button>
+      </div>
+      <div class="stack-btns" style="margin-top:14px;">
+        <button class="action primary" id="friendInviteBtn">Invite to match</button>
+        <button class="action" id="friendChatCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- incoming match-invite modal -->
+  <div class="overlay" id="inviteOverlay">
+    <div class="overlay-card">
+      <h2>Match invite</h2>
+      <p id="inviteFromLabel">Someone wants to play</p>
+      <div class="stack-btns">
+        <button class="action primary" id="inviteAcceptBtn">Accept</button>
+        <button class="action" id="inviteDeclineBtn">Decline</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 (function(){
   const SIZE = 8;
@@ -909,8 +979,9 @@
 
   /* =========================================================================
      BACKEND (Firebase Firestore) — powers the leaderboard, online presence /
-     player count, and the quick-match queue. Lazy-loaded so a missing config
-     or no internet never breaks solo/1v1 gameplay itself.
+     player count, quick-match queue, friends list lookups, friend chat, and
+     match invites. Lazy-loaded so a missing config or no internet never
+     breaks solo/1v1 gameplay itself.
 
      TO ENABLE / RE-POINT THIS AT YOUR OWN PROJECT:
      1. https://console.firebase.google.com > create a free project.
@@ -929,17 +1000,20 @@
             }
             match /presence/{playerId} { allow read, write: if true; }
             match /queue/{playerId}    { allow read, write: if true; }
+            match /invites/{playerId}  { allow read, write: if true; }
+            match /chats/{pairId}/messages/{msgId} { allow read, write: if true; }
           }
         }
 
         This is an open/trusting setup with no server-side auth — scores,
-        presence, and queue entries can technically be spoofed by a determined
-        user. Fine for a leaderboard/quick-match among friends, not
-        abuse-resistant for the public web. Quick-match pairing (joinQueue)
-        is best-effort client-side matchmaking, not transactional, so on rare
-        occasions two players queuing at the exact same instant could both
-        try to claim the same match; move pairing into a Cloud Function if
-        that matters for your use case.
+        presence, queue entries, invites, and chat messages can technically
+        be spoofed by a determined user. Fine for a leaderboard/quick-match/
+        friends feature among friends, not abuse-resistant for the public
+        web. Quick-match pairing (joinQueue) is best-effort client-side
+        matchmaking, not transactional, so on rare occasions two players
+        queuing at the exact same instant could both try to claim the same
+        match; move pairing into a Cloud Function if that matters for your
+        use case.
   ========================================================================= */
 
   const firebaseConfig = {
@@ -1143,13 +1217,29 @@
   });
 
   /* =========================================================================
-     SCREEN SWITCHING
+     SCREEN SWITCHING (+ always-available back button)
   ========================================================================= */
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    updateBackButton(id);
+  }
+  function updateBackButton(screenId){
+    const backBtn = document.getElementById('globalBackBtn');
+    backBtn.style.display = (screenId === 'screen-home') ? 'none' : 'flex';
   }
   document.getElementById('brandHome').addEventListener('click', () => showScreen('screen-home'));
+  document.getElementById('globalBackBtn').addEventListener('click', () => {
+    const current = document.querySelector('.screen.active').id;
+    if(current === 'screen-mp-match'){ leaveMatch(); return; }
+    if(current === 'screen-mp-lobby'){
+      if(inQueue) leaveQueue();
+      destroyPeer();
+      showScreen('screen-home');
+      return;
+    }
+    showScreen('screen-home');
+  });
 
   /* =========================================================================
      SHARED HELPERS (grid / pieces / rendering) — used by both solo & 1v1
@@ -1644,12 +1734,21 @@
     return typeof Peer !== 'undefined';
   }
 
+  /* --------- lobby tab switching (Create / Join / Quick match are kept
+     fully independent — switching away from Quick match cancels any
+     active search so it can't silently keep running in the background) --------- */
   document.querySelectorAll('.lobby-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.lobby-tab').forEach(t=>t.classList.remove('active'));
       document.querySelectorAll('.lobby-pane').forEach(p=>p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('pane-' + tab.dataset.tab).classList.add('active');
+      if(tab.dataset.tab !== 'quick' && inQueue){
+        leaveQueue();
+        document.getElementById('quickMatchBtn').style.display = '';
+        document.getElementById('cancelQuickBtn').style.display = 'none';
+        document.getElementById('quickStatus').textContent = '';
+      }
     });
   });
 
@@ -1671,6 +1770,7 @@
       await initPeer(fullId);
       myRoomCode = code;
       isHost = true;
+      isVsAI = false;
       document.getElementById('myCode').textContent = code;
       statusEl.className = 'lobby-status ok';
       statusEl.textContent = 'room ready — waiting for opponent…';
@@ -1727,7 +1827,7 @@
         : (err && err.type)
           ? `connection error (${err.type}) — try again`
           : 'could not reach that room — check the code';
-      btn.disabled = false;
+      if(btn) btn.disabled = false;
     });
 
     setTimeout(() => {
@@ -1740,7 +1840,7 @@
         settled = true;
         statusEl.className = 'lobby-status err';
         statusEl.textContent = 'no response — check the code and try again';
-        btn.disabled = false;
+        if(btn) btn.disabled = false;
       }
     }, 7000);
   }
@@ -1763,6 +1863,7 @@
     try{
       await initPeer(undefined);
       isHost = false;
+      isVsAI = false;
       attemptJoin(code, statusEl, btn, 0);
     } catch(err){
       statusEl.className = 'lobby-status err';
@@ -1771,7 +1872,10 @@
     }
   });
 
-  document.getElementById('mpLobbyBackBtn').addEventListener('click', () => showScreen('screen-home'));
+  document.getElementById('mpLobbyBackBtn').addEventListener('click', () => {
+    if(inQueue) leaveQueue();
+    showScreen('screen-home');
+  });
 
   function wireConnection(){
     conn.on('open', () => {
@@ -1803,7 +1907,7 @@
     } else if(msg.type === 'state'){
       applyOppState(msg);
     } else if(msg.type === 'toppedout'){
-      handleOppToppedOut(msg.score);
+      handleOppToppedOut(msg.score, !!msg.afk);
     } else if(msg.type === 'rematch'){
       handleRematchRequest();
     } else if(msg.type === 'chat'){
@@ -1943,9 +2047,10 @@
     }
   }
 
-  /* ---------------- race-to-beat-score + move timer ---------------- */
+  /* ---------------- move timer, missed-move auto-forfeit, and race-to-beat-score ---------------- */
   const MOVE_TIME_LIMIT = 15;   // seconds to place a piece before one is forfeited
   const RACE_TIME_LIMIT = 30;   // seconds the surviving player gets to beat the topped-out score
+  const MAX_MISSED_MOVES = 3;   // consecutive missed placements before auto-losing
 
   let moveTimeLeft = MOVE_TIME_LIMIT;
   let moveTimerInterval = null;
@@ -1954,6 +2059,14 @@
   let raceTimeLeft = RACE_TIME_LIMIT;
   let raceTimerInterval = null;
   let matchEnded = false;
+  let myMissedMoves = 0;
+
+  function updateMissedCounterUI(){
+    const el = document.getElementById('missedCounter');
+    if(myMissedMoves <= 0){ el.style.display = 'none'; return; }
+    el.style.display = '';
+    el.textContent = `⏱ missed ${myMissedMoves}/${MAX_MISSED_MOVES}`;
+  }
 
   function resetMoveTimer(){
     stopMoveTimer();
@@ -1973,24 +2086,57 @@
   }
   function stopMoveTimer(){ clearInterval(moveTimerInterval); moveTimerInterval = null; }
 
+  // Called when the placement timer expires without a placement.
+  // Tracks consecutive misses — 3 in a row (with no successful placement
+  // resetting the count in between) auto-forfeits the match.
   function forfeitOnePiece(){
     if(matchEnded || myToppedOut) return;
     const idx = myTray.findIndex(Boolean);
-    if(idx === -1){ resetMoveTimer(); return; }
-    myTray[idx] = null;
-    renderMyTray();
+    if(idx !== -1){ myTray[idx] = null; renderMyTray(); }
+
+    myMissedMoves++;
+    updateMissedCounterUI();
     playSfx('error');
+
+    if(myMissedMoves >= MAX_MISSED_MOVES){
+      document.getElementById('myStatus').textContent = 'too many missed placements — forfeiting';
+      handleAfkForfeit();
+      return;
+    }
+
     document.getElementById('myStatus').textContent = 'too slow — a piece was skipped';
-    setTimeout(() => { if(!matchEnded && document.getElementById('myStatus').textContent === 'too slow — a piece was skipped') document.getElementById('myStatus').textContent = ''; }, 1600);
+    setTimeout(() => {
+      if(!matchEnded && document.getElementById('myStatus').textContent === 'too slow — a piece was skipped'){
+        document.getElementById('myStatus').textContent = '';
+      }
+    }, 1600);
+
     if(myTray.every(t=>!t)) fillMyTray();
     else { checkMyGameOver(); sendState(); resetMoveTimer(); }
   }
 
-  // Called when the opponent reports they've topped out first.
-  function handleOppToppedOut(score){
+  // Any successful placement resets the missed-move streak.
+  function resetMissedMoves(){
+    if(myMissedMoves !== 0){ myMissedMoves = 0; updateMissedCounterUI(); }
+  }
+
+  function handleAfkForfeit(){
+    if(matchEnded || myToppedOut) return;
+    myToppedOut = true;
+    stopMoveTimer();
+    document.getElementById('myPanel').classList.add('topped-out');
+    document.getElementById('myStatus').innerHTML = '<span class="topped-tag">AUTO-FORFEIT (missed 3 in a row)</span>';
+    conn && conn.send({ type:'toppedout', score: myScore, afk:true });
+    handleSelfToppedOut(myScore);
+  }
+
+  // Called when the opponent reports they've topped out (or auto-forfeited) first.
+  function handleOppToppedOut(score, afk){
     oppToppedOut = true;
     document.getElementById('oppPanel').classList.add('topped-out');
-    document.getElementById('oppStatus').innerHTML = '<span class="topped-tag">TOPPED OUT</span>';
+    document.getElementById('oppStatus').innerHTML = afk
+      ? '<span class="topped-tag">AUTO-FORFEIT (AFK)</span>'
+      : '<span class="topped-tag">TOPPED OUT</span>';
     if(matchEnded) return;
     if(myToppedOut){
       // both already stopped near-simultaneously — settle by score
@@ -2000,8 +2146,9 @@
     startRace(score);
   }
 
-  // Called when I top out (locally). If opponent hasn't topped out yet, I start racing against
-  // whatever their current score is; otherwise settle immediately by comparing scores.
+  // Called when I top out or auto-forfeit (locally). If opponent hasn't
+  // topped out yet, I start racing against whatever their current score is;
+  // otherwise settle immediately by comparing scores.
   function handleSelfToppedOut(score){
     if(matchEnded) return;
     if(oppToppedOut){
@@ -2173,6 +2320,7 @@
     if(target && target.ok){
       placeMyPiece(dragging.shape, dragging.gem, target.r0, target.c0);
       playSfx('place');
+      resetMissedMoves();
       myTray[dragging.slotIndex] = null;
       renderMyTray();
       if(myTray.every(t=>!t)) fillMyTray();
@@ -2247,7 +2395,7 @@
     if(!isVsAI || matchEnded || oppToppedOut){ stopBotLoop(); return; }
     const active = oppTray.filter(Boolean);
     if(active.length && !active.some(p => anyPlacementExists(oppGrid, p.shape))){
-      handleOppToppedOut(oppScore);
+      handleOppToppedOut(oppScore, false);
       return;
     }
     const move = botFindBestMove();
@@ -2271,8 +2419,10 @@
     matchEnded = false;
     raceActive = false;
     raceTargetScore = null;
+    myMissedMoves = 0;
     clearInterval(raceTimerInterval);
     document.getElementById('raceBanner').classList.remove('show');
+    updateMissedCounterUI();
     rngState = seed;
     myGrid = blankGrid(); oppGrid = blankGrid();
     myTray = [null,null,null]; oppTray = [null,null,null];
@@ -2379,7 +2529,7 @@
   }
 
   /* =========================================================================
-     CHAT
+     CHAT (in-match)
   ========================================================================= */
   function addChatMessage(who, text, isMe){
     const log = document.getElementById('chatLog');
@@ -2393,14 +2543,6 @@
     log.appendChild(row);
     log.scrollTop = log.scrollHeight;
     if(!isMe) playSfx('msg');
-  }
-  function addSysMessage(text){
-    const log = document.getElementById('chatLog');
-    const row = document.createElement('div');
-    row.className = 'chat-msg sys';
-    row.textContent = text;
-    log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
   }
   document.getElementById('chatSendBtn').addEventListener('click', sendChat);
   document.getElementById('chatInput').addEventListener('keydown', (e) => { if(e.key==='Enter') sendChat(); });
@@ -2511,7 +2653,6 @@
       sw.className = 'block-swatch' + (key === blockSetKey ? ' active' : '');
       sw.dataset.set = key;
       sw.title = set.label;
-      sw.style.setProperty('--c', `linear-gradient(135deg, ${set.colors[0]}, ${set.colors[3]})`);
       sw.style.background = `linear-gradient(135deg, ${set.colors[0]}, ${set.colors[3]})`;
       sw.addEventListener('click', () => { applyBlockSet(key); playSfx('click'); });
       row.appendChild(sw);
@@ -2575,12 +2716,13 @@
      ONLINE PRESENCE + PLAYER COUNT + QUICK MATCH QUEUE (Firestore)
      Presence docs live in `presence/{name}` with a heartbeat timestamp;
      anything older than ~25s is treated as offline. The quick-match queue
-     lives in `queue/{name}` — the first two waiting players pair up.
+     lives in `queue/{name}` — the first waiting, non-stale player pairs up.
   ========================================================================= */
   let presenceInterval = null;
   let onlineCountInterval = null;
   let queueUnsub = null;
   let inQueue = false;
+  const QUEUE_STALE_MS = 20000;
 
   async function touchPresence(){
     await initFirebase();
@@ -2598,13 +2740,24 @@
   async function refreshOnlineCount(){
     await initFirebase();
     const label = document.getElementById('onlineCountLabel');
-    if(!firebaseReady){ label.textContent = 'online count unavailable'; return; }
+    const label2 = document.getElementById('lobbyOnlineCountLabel');
+    if(!firebaseReady){
+      label.textContent = 'online count unavailable';
+      if(label2) label2.textContent = 'online count unavailable';
+      return;
+    }
     try{
       const cutoff = new Date(Date.now() - 25000);
       const q = fb.query(fb.collection(db,'presence'), fb.where('lastSeen','>', fb.Timestamp.fromDate(cutoff)));
       const snap = await fb.getDocs(q);
-      label.textContent = `${snap.size} player${snap.size===1?'':'s'} online`;
-    }catch(e){ label.textContent = 'online count unavailable'; }
+      const txt = `${snap.size} player${snap.size===1?'':'s'} online`;
+      label.textContent = txt;
+      if(label2) label2.textContent = txt;
+    }catch(e){
+      console.error('online count failed', e);
+      label.textContent = 'online count unavailable';
+      if(label2) label2.textContent = 'online count unavailable';
+    }
   }
   function startPresenceLoop(){
     touchPresence();
@@ -2640,44 +2793,72 @@
     const myId = slugify(playerName);
     const myDocRef = fb.doc(db, 'queue', myId);
 
-    // Look for someone else already waiting.
-    const q = fb.query(fb.collection(db,'queue'), fb.orderBy('joinedAt','asc'), fb.limit(5));
-    const snap = await fb.getDocs(q);
-    const candidate = snap.docs.find(d => d.id !== myId && !d.data().matchedWith);
-
-    if(candidate){
-      // Pair with them: write a match record both sides can read.
-      const roomCode = genRoomCode();
-      await fb.setDoc(fb.doc(db,'queue',candidate.id), { matchedWith: myId, roomCode }, { merge:true });
+    try{
+      // Clear any stale doc left over from a previous session/tab before searching.
       await fb.deleteDoc(myDocRef).catch(()=>{});
-      statusEl.className = 'lobby-status ok';
-      statusEl.textContent = 'opponent found — connecting…';
-      inQueue = false;
-      document.getElementById('quickMatchBtn').style.display = '';
-      document.getElementById('cancelQuickBtn').style.display = 'none';
-      startQuickMatchAsJoiner(roomCode);
-      return;
-    }
 
-    // Nobody waiting — post myself and listen for someone to claim me.
-    await fb.setDoc(myDocRef, { name: playerName, joinedAt: fb.serverTimestamp(), matchedWith: null, roomCode: null });
-    queueUnsub = fb.onSnapshot(myDocRef, (docSnap) => {
-      if(!inQueue) return;
-      const data = docSnap.data();
-      if(data && data.matchedWith && data.roomCode){
+      const q = fb.query(fb.collection(db,'queue'), fb.orderBy('joinedAt','asc'), fb.limit(10));
+      const snap = await fb.getDocs(q);
+      const now = Date.now();
+      const candidate = snap.docs.find(d => {
+        if(d.id === myId) return false;
+        const data = d.data();
+        if(data.matchedWith) return false;
+        const joinedMs = data.joinedAt ? data.joinedAt.toMillis() : 0;
+        if(!joinedMs || (now - joinedMs) > QUEUE_STALE_MS) return false; // ignore ghost entries
+        return true;
+      });
+
+      if(candidate){
+        const roomCode = genRoomCode();
+        await fb.setDoc(fb.doc(db,'queue',candidate.id), { matchedWith: myId, roomCode }, { merge:true });
         statusEl.className = 'lobby-status ok';
         statusEl.textContent = 'opponent found — connecting…';
         inQueue = false;
         document.getElementById('quickMatchBtn').style.display = '';
         document.getElementById('cancelQuickBtn').style.display = 'none';
-        if(queueUnsub){ queueUnsub(); queueUnsub = null; }
-        startQuickMatchAsHost(data.roomCode);
+        startQuickMatchAsJoiner(roomCode);
+        return;
       }
-    });
+
+      // Nobody waiting — post myself and listen for someone to claim me.
+      await fb.setDoc(myDocRef, { name: playerName, joinedAt: fb.serverTimestamp(), matchedWith: null, roomCode: null });
+      queueUnsub = fb.onSnapshot(myDocRef, (docSnap) => {
+        if(!inQueue) return;
+        const data = docSnap.data();
+        if(data && data.matchedWith && data.roomCode){
+          statusEl.className = 'lobby-status ok';
+          statusEl.textContent = 'opponent found — connecting…';
+          inQueue = false;
+          document.getElementById('quickMatchBtn').style.display = '';
+          document.getElementById('cancelQuickBtn').style.display = 'none';
+          if(queueUnsub){ queueUnsub(); queueUnsub = null; }
+          startQuickMatchAsHost(data.roomCode);
+        }
+      });
+
+      clearTimeout(joinQueue._timeout);
+      joinQueue._timeout = setTimeout(() => {
+        if(!inQueue) return;
+        leaveQueue();
+        document.getElementById('quickMatchBtn').style.display = '';
+        document.getElementById('cancelQuickBtn').style.display = 'none';
+        statusEl.className = 'lobby-status err';
+        statusEl.textContent = 'no one found — try again, or share a room code instead';
+      }, 60000);
+    }catch(e){
+      console.error('quick match failed', e);
+      inQueue = false;
+      document.getElementById('quickMatchBtn').style.display = '';
+      document.getElementById('cancelQuickBtn').style.display = 'none';
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = 'quick match hit an error — try again';
+    }
   }
 
   async function leaveQueue(){
     inQueue = false;
+    clearTimeout(joinQueue._timeout);
     if(queueUnsub){ queueUnsub(); queueUnsub = null; }
     await initFirebase();
     if(!firebaseReady) return;
@@ -2685,9 +2866,11 @@
   }
 
   function startQuickMatchAsHost(roomCode){
-    // I was waiting in queue; the other player claimed me and will join this code.
     (async () => {
-      if(!peerLibAvailable()) return;
+      if(!peerLibAvailable()){
+        document.getElementById('quickStatus').textContent = 'connection library unavailable — reload the page';
+        return;
+      }
       destroyPeer();
       try{
         await initPeer('blockhoard-' + roomCode);
@@ -2696,20 +2879,28 @@
         isVsAI = false;
         setConnStatus(false, 'waiting for opponent');
         peer.on('connection', (c) => { if(conn){ c.close(); return; } conn = c; wireConnection(); });
-      }catch(e){ /* fall back silently */ }
+      }catch(e){
+        const s = document.getElementById('quickStatus');
+        s.className = 'lobby-status err'; s.textContent = 'could not open connection — try again';
+      }
     })();
   }
   function startQuickMatchAsJoiner(roomCode){
     (async () => {
-      if(!peerLibAvailable()) return;
+      if(!peerLibAvailable()){
+        document.getElementById('quickStatus').textContent = 'connection library unavailable — reload the page';
+        return;
+      }
       destroyPeer();
       try{
         await initPeer(undefined);
         isHost = false;
         isVsAI = false;
-        const statusEl = document.getElementById('quickStatus');
-        attemptJoin(roomCode, statusEl, document.getElementById('quickMatchBtn'), 0);
-      }catch(e){ /* fall back silently */ }
+        attemptJoin(roomCode, document.getElementById('quickStatus'), document.getElementById('quickMatchBtn'), 0);
+      }catch(e){
+        const s = document.getElementById('quickStatus');
+        s.className = 'lobby-status err'; s.textContent = 'could not connect — try again';
+      }
     })();
   }
 
@@ -2721,6 +2912,204 @@
     document.getElementById('quickStatus').className = 'lobby-status';
     document.getElementById('quickStatus').textContent = 'search cancelled';
   });
+
+  /* =========================================================================
+     FRIENDS — add by display name, see online status, chat 1:1, and send
+     direct match invites (separate from the public quick-match queue).
+  ========================================================================= */
+  let friendsListLocal = [];
+  try{ friendsListLocal = JSON.parse(localStorage.getItem('blockhoard_friends') || '[]'); }catch(e){ friendsListLocal = []; }
+  let inviteUnsub = null;
+  let currentFriendChat = null;
+  let friendChatUnsub = null;
+
+  function saveFriendsLocal(){ localStorage.setItem('blockhoard_friends', JSON.stringify(friendsListLocal)); }
+
+  async function addFriend(name){
+    const statusEl = document.getElementById('friendsStatus');
+    name = (name||'').trim();
+    if(!name){ statusEl.className='lobby-status err'; statusEl.textContent='enter a name first'; return; }
+    if(slugify(name) === slugify(playerName)){ statusEl.className='lobby-status err'; statusEl.textContent="that's you!"; return; }
+    if(friendsListLocal.some(f=>slugify(f)===slugify(name))){ statusEl.className='lobby-status err'; statusEl.textContent='already on your list'; return; }
+    await initFirebase();
+    if(firebaseReady){
+      try{
+        const snap = await fb.getDoc(fb.doc(db,'players', slugify(name)));
+        if(!snap.exists()){
+          statusEl.className='lobby-status err';
+          statusEl.textContent = "no player with that exact name has played yet";
+          return;
+        }
+      }catch(e){ /* if lookup fails, allow adding anyway */ }
+    }
+    friendsListLocal.push(name);
+    saveFriendsLocal();
+    document.getElementById('addFriendInput').value = '';
+    statusEl.className='lobby-status ok'; statusEl.textContent = 'added!';
+    renderFriendsList();
+  }
+
+  function removeFriend(name){
+    friendsListLocal = friendsListLocal.filter(f => slugify(f) !== slugify(name));
+    saveFriendsLocal();
+    renderFriendsList();
+  }
+
+  async function isFriendOnline(name){
+    try{
+      const snap = await fb.getDoc(fb.doc(db,'presence', slugify(name)));
+      if(!snap.exists()) return false;
+      const last = snap.data().lastSeen;
+      return last ? (Date.now() - last.toMillis()) < 25000 : false;
+    }catch(e){ return false; }
+  }
+
+  async function renderFriendsList(){
+    const el = document.getElementById('friendsList');
+    el.innerHTML = '';
+    if(friendsListLocal.length === 0){ el.innerHTML = '<div class="lb-empty mono">No friends yet — add one above.</div>'; return; }
+    await initFirebase();
+    for(const name of friendsListLocal){
+      const online = firebaseReady ? await isFriendOnline(name) : false;
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = `
+        <span class="pill ${online?'online':'offline'}" style="padding:4px 8px;"><span class="dot"></span></span>
+        <span class="lb-name">${escapeHtml(name)}</span>
+        <span style="display:flex; gap:6px;">
+          <button class="icon-btn" data-chat="${escapeHtml(name)}" title="Chat" style="width:32px;height:32px;font-size:13px;">💬</button>
+          <button class="icon-btn" data-invite="${escapeHtml(name)}" title="Invite to match" style="width:32px;height:32px;font-size:13px;">⚔️</button>
+          <button class="icon-btn" data-remove="${escapeHtml(name)}" title="Remove" style="width:32px;height:32px;font-size:13px;">✕</button>
+        </span>`;
+      el.appendChild(row);
+    }
+    el.querySelectorAll('[data-chat]').forEach(btn => btn.addEventListener('click', () => openFriendChat(btn.dataset.chat)));
+    el.querySelectorAll('[data-invite]').forEach(btn => btn.addEventListener('click', () => sendFriendInvite(btn.dataset.invite)));
+    el.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeFriend(btn.dataset.remove)));
+  }
+
+  function pairId(a,b){ const s=[slugify(a),slugify(b)].sort(); return s[0]+'__'+s[1]; }
+
+  function openFriendChat(name){
+    currentFriendChat = name;
+    document.getElementById('friendChatTitle').textContent = 'Chat with ' + name;
+    document.getElementById('friendChatLog').innerHTML = '';
+    document.getElementById('friendChatOverlay').classList.add('show');
+    (async () => {
+      await initFirebase();
+      if(!firebaseReady){
+        document.getElementById('friendChatLog').innerHTML = '<div class="chat-msg sys">Chat needs the leaderboard backend, which isn\'t configured yet.</div>';
+        return;
+      }
+      const id = pairId(playerName, name);
+      const q = fb.query(fb.collection(db,'chats', id, 'messages'), fb.orderBy('at','asc'), fb.limit(50));
+      if(friendChatUnsub) friendChatUnsub();
+      friendChatUnsub = fb.onSnapshot(q, (snap) => {
+        const log = document.getElementById('friendChatLog');
+        log.innerHTML = '';
+        snap.forEach(d => {
+          const m = d.data();
+          const row = document.createElement('div');
+          row.className = 'chat-msg' + (slugify(m.from||'')===slugify(playerName) ? ' me' : '');
+          const who = document.createElement('span');
+          who.className = 'who';
+          who.textContent = (m.from||'?') + ': ';
+          row.appendChild(who);
+          row.appendChild(document.createTextNode(m.text||''));
+          log.appendChild(row);
+        });
+        log.scrollTop = log.scrollHeight;
+      }, (err) => { console.error('friend chat listen failed', err); });
+    })();
+  }
+
+  async function sendFriendChatMsg(){
+    const input = document.getElementById('friendChatInput');
+    const text = input.value.trim();
+    if(!text || !currentFriendChat) return;
+    input.value = '';
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{
+      await fb.addDoc(fb.collection(db,'chats', pairId(playerName, currentFriendChat), 'messages'), {
+        from: playerName, text, at: fb.serverTimestamp()
+      });
+      playSfx('msg');
+    }catch(e){ console.error('friend chat send failed', e); }
+  }
+
+  async function sendFriendInvite(name){
+    await initFirebase();
+    if(!firebaseReady){ alert('Invites need the leaderboard backend, which isn\'t configured yet.'); return; }
+    ensureName();
+    const roomCode = genRoomCode();
+    try{
+      await fb.setDoc(fb.doc(db,'invites', slugify(name)), { from: playerName, roomCode, at: fb.serverTimestamp() });
+      isVsAI = false;
+      document.getElementById('friendChatOverlay').classList.remove('show');
+      showScreen('screen-mp-lobby');
+      document.querySelectorAll('.lobby-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.lobby-pane').forEach(p=>p.classList.remove('active'));
+      document.querySelector('.lobby-tab[data-tab="create"]').classList.add('active');
+      document.getElementById('pane-create').classList.add('active');
+      document.getElementById('myCode').textContent = roomCode;
+      document.getElementById('createStatus').className = 'lobby-status ok';
+      document.getElementById('createStatus').textContent = `invited ${name} — waiting for them to accept…`;
+      startQuickMatchAsHost(roomCode);
+    }catch(e){ console.error('invite failed', e); alert('could not send invite — try again'); }
+  }
+
+  function listenForInvites(){
+    (async () => {
+      await initFirebase();
+      if(!firebaseReady) return;
+      const ref = fb.doc(db, 'invites', slugify(ensureName()));
+      if(inviteUnsub) inviteUnsub();
+      inviteUnsub = fb.onSnapshot(ref, (snap) => {
+        if(!snap.exists()) return;
+        const data = snap.data();
+        if(!data.roomCode || !data.from) return;
+        const age = data.at ? (Date.now() - data.at.toMillis()) : 0;
+        if(age > 60000) return;
+        document.getElementById('inviteFromLabel').textContent = `${data.from} wants to play — accept?`;
+        document.getElementById('inviteOverlay').classList.add('show');
+        document.getElementById('inviteAcceptBtn').onclick = async () => {
+          document.getElementById('inviteOverlay').classList.remove('show');
+          await fb.deleteDoc(ref).catch(()=>{});
+          isVsAI = false; isHost = false;
+          destroyPeer();
+          try{
+            await initPeer(undefined);
+            showScreen('screen-mp-lobby');
+            document.querySelectorAll('.lobby-tab').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.lobby-pane').forEach(p=>p.classList.remove('active'));
+            document.querySelector('.lobby-tab[data-tab="join"]').classList.add('active');
+            document.getElementById('pane-join').classList.add('active');
+            attemptJoin(data.roomCode, document.getElementById('joinStatus'), document.getElementById('joinBtn'), 0);
+          }catch(e){ console.error('invite accept failed', e); }
+        };
+        document.getElementById('inviteDeclineBtn').onclick = async () => {
+          document.getElementById('inviteOverlay').classList.remove('show');
+          await fb.deleteDoc(ref).catch(()=>{});
+        };
+      }, (err) => { console.error('invite listen failed', err); });
+    })();
+  }
+
+  document.getElementById('friendsBtn').addEventListener('click', () => { showScreen('screen-friends'); renderFriendsList(); });
+  document.getElementById('friendsBackBtn').addEventListener('click', () => showScreen('screen-home'));
+  document.getElementById('addFriendBtn').addEventListener('click', () => addFriend(document.getElementById('addFriendInput').value));
+  document.getElementById('addFriendInput').addEventListener('keydown', (e) => { if(e.key==='Enter') addFriend(e.target.value); });
+  document.getElementById('friendChatSendBtn').addEventListener('click', sendFriendChatMsg);
+  document.getElementById('friendChatInput').addEventListener('keydown', (e) => { if(e.key==='Enter') sendFriendChatMsg(); });
+  document.getElementById('friendChatCloseBtn').addEventListener('click', () => {
+    document.getElementById('friendChatOverlay').classList.remove('show');
+    if(friendChatUnsub){ friendChatUnsub(); friendChatUnsub = null; }
+    currentFriendChat = null;
+  });
+  document.getElementById('friendInviteBtn').addEventListener('click', () => { if(currentFriendChat) sendFriendInvite(currentFriendChat); });
+
+  listenForInvites();
 
   /* =========================================================================
      MENU WIRING
