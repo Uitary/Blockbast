@@ -811,13 +811,24 @@
     </div>
     <div class="menu-card" style="max-width:420px;">
       <h2>Friends</h2>
-      <p class="sub">Add friends by their display name, then view their profile, chat, or challenge them to a match directly.</p>
+      <p class="sub">Add friends by their display name, browse other players below, then view a profile, chat, or challenge someone to a match.</p>
       <div class="name-edit" style="width:100%; justify-content:center; margin-bottom:14px; position:relative;">
         <input id="addFriendInput" placeholder="friend's display name" maxlength="20" style="flex:1;">
         <button class="icon-btn" id="addFriendBtn" title="Add friend">+</button>
       </div>
       <div class="lobby-status" id="friendsStatus"></div>
+
+      <div style="text-align:left; font-weight:700; font-size:13px; margin:12px 0 8px; display:flex; align-items:center; justify-content:space-between;">
+        <span>Your friends</span><span class="win-badge" id="friendsCountBadge">0</span>
+      </div>
       <div class="lb-list" id="friendsList"></div>
+
+      <div style="text-align:left; font-weight:700; font-size:13px; margin:18px 0 8px; display:flex; align-items:center; justify-content:space-between;">
+        <span>Other players</span><span class="win-badge" id="otherPlayersCountBadge">0</span>
+      </div>
+      <p class="sub" style="text-align:left; margin:-4px 0 8px;">Everyone else who's played Blockhoard — tap + to add a friend.</p>
+      <div class="lobby-status" id="otherPlayersStatus"></div>
+      <div class="lb-list" id="otherPlayersList"></div>
     </div>
   </div>
 
@@ -1184,6 +1195,17 @@
   async function fetchMpLeaderboard(){
     if(!firebaseReady) return [];
     const q = fb.query(fb.collection(db,'players'), fb.orderBy('wins','desc'), fb.limit(20));
+    const snaps = await fb.getDocs(q);
+    return snaps.docs.map(d=>d.data());
+  }
+
+  // Every player who has ever set a name (played solo, played 1v1, or saved
+  // a profile) shows up here — used by the Friends screen's "Other players"
+  // list so people can discover and add friends without knowing an exact
+  // name in advance.
+  async function fetchAllPlayers(){
+    if(!firebaseReady) return [];
+    const q = fb.query(fb.collection(db,'players'), fb.orderBy('name'), fb.limit(60));
     const snaps = await fb.getDocs(q);
     return snaps.docs.map(d=>d.data());
   }
@@ -3303,13 +3325,13 @@
     saveFriendsLocal();
     document.getElementById('addFriendInput').value = '';
     statusEl.className='lobby-status ok'; statusEl.textContent = 'added!';
-    renderFriendsList();
+    refreshFriendsScreen();
   }
 
   function removeFriend(name){
     friendsListLocal = friendsListLocal.filter(f => slugify(f) !== slugify(name));
     saveFriendsLocal();
-    renderFriendsList();
+    refreshFriendsScreen();
   }
 
   async function isFriendOnline(name){
@@ -3321,10 +3343,23 @@
     }catch(e){ return false; }
   }
 
+  // Re-renders whichever Friends-screen lists exist — used after
+  // add/remove-friend actions (from the friends list itself, the "other
+  // players" list, or the profile modal) so a player instantly moves
+  // between the two sections instead of requiring a manual refresh.
+  function refreshFriendsScreen(){
+    const screen = document.getElementById('screen-friends');
+    if(!screen || !screen.classList.contains('active')) return;
+    renderFriendsList();
+    renderOtherPlayersList();
+  }
+
   async function renderFriendsList(){
     const el = document.getElementById('friendsList');
+    const badge = document.getElementById('friendsCountBadge');
+    if(badge) badge.textContent = friendsListLocal.length;
     el.innerHTML = '';
-    if(friendsListLocal.length === 0){ el.innerHTML = '<div class="lb-empty mono">No friends yet — add one above.</div>'; return; }
+    if(friendsListLocal.length === 0){ el.innerHTML = '<div class="lb-empty mono">No friends yet — add one above, or pick someone from "Other players" below.</div>'; return; }
     await initFirebase();
     for(const name of friendsListLocal){
       const [online, stats] = await Promise.all([
@@ -3349,6 +3384,66 @@
     el.querySelectorAll('[data-chat]').forEach(btn => btn.addEventListener('click', () => openFriendChat(btn.dataset.chat)));
     el.querySelectorAll('[data-invite]').forEach(btn => btn.addEventListener('click', () => sendFriendInvite(btn.dataset.invite)));
     el.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeFriend(btn.dataset.remove)));
+  }
+
+  // "Other players" — everyone who has ever set a name and isn't already a
+  // friend (and isn't you), so people can discover and add friends instead
+  // of only being able to add someone by typing their exact name.
+  async function renderOtherPlayersList(){
+    const el = document.getElementById('otherPlayersList');
+    const badge = document.getElementById('otherPlayersCountBadge');
+    const statusEl = document.getElementById('otherPlayersStatus');
+    el.innerHTML = '';
+    statusEl.className = 'lobby-status';
+    statusEl.textContent = 'loading…';
+    await initFirebase();
+    if(!firebaseReady){
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = 'Player list isn\'t available yet — the leaderboard backend isn\'t configured.';
+      if(badge) badge.textContent = '0';
+      return;
+    }
+    let allPlayers = [];
+    try{
+      allPlayers = await fetchAllPlayers();
+    }catch(e){
+      console.error('fetchAllPlayers failed', e);
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = 'could not load players — check your connection';
+      if(badge) badge.textContent = '0';
+      return;
+    }
+    const others = allPlayers.filter(p => {
+      const n = p && p.name;
+      if(!n) return false;
+      if(slugify(n) === slugify(playerName)) return false;
+      if(friendsListLocal.some(f => slugify(f) === slugify(n))) return false;
+      return true;
+    });
+    statusEl.textContent = '';
+    if(badge) badge.textContent = others.length;
+    if(others.length === 0){
+      el.innerHTML = '<div class="lb-empty mono">No other players yet — invite someone to play!</div>';
+      return;
+    }
+    const onlineFlags = await Promise.all(others.map(p => isFriendOnline(p.name)));
+    others.forEach((p, i) => {
+      const nameEsc = escapeHtml(p.name);
+      const online = onlineFlags[i];
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = `
+        <span class="pill ${online?'online':'offline'}" style="padding:4px 8px;"><span class="dot"></span></span>
+        <div class="profile-pic-sm" data-view="${nameEsc}" title="View profile"></div>
+        <span class="lb-name" data-view="${nameEsc}" style="cursor:pointer;">${nameEsc}</span>
+        <span style="display:flex; gap:6px;">
+          <button class="icon-btn" data-addfriend="${nameEsc}" title="Add friend" style="width:32px;height:32px;font-size:13px;">➕</button>
+        </span>`;
+      setProfilePicEl(row.querySelector('.profile-pic-sm'), p.name, p.pic || null);
+      el.appendChild(row);
+    });
+    el.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => openProfileView(node.dataset.view)));
+    el.querySelectorAll('[data-addfriend]').forEach(btn => btn.addEventListener('click', () => addFriend(btn.dataset.addfriend)));
   }
 
   function pairId(a,b){ const s=[slugify(a),slugify(b)].sort(); return s[0]+'__'+s[1]; }
@@ -3459,7 +3554,7 @@
     })();
   }
 
-  document.getElementById('friendsBtn').addEventListener('click', () => { showScreen('screen-friends'); renderFriendsList(); });
+  document.getElementById('friendsBtn').addEventListener('click', () => { showScreen('screen-friends'); refreshFriendsScreen(); });
   document.getElementById('friendsBackBtn').addEventListener('click', () => showScreen('screen-home'));
   document.getElementById('addFriendBtn').addEventListener('click', () => addFriend(document.getElementById('addFriendInput').value));
   document.getElementById('addFriendInput').addEventListener('keydown', (e) => { if(e.key==='Enter') addFriend(e.target.value); });
