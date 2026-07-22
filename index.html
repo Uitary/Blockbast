@@ -421,7 +421,7 @@
   .overlay-card h2.lose{ color: var(--danger); }
   .overlay-card p{ color: var(--ink-dim); font-size:13px; margin: 4px 0 18px; font-family:'Space Mono', monospace; }
   .overlay-card .final-score{ font-family:'Space Mono', monospace; font-weight:700; font-size:38px; color: var(--ink); margin-bottom:4px; }
-  .final-scores{ display:flex; justify-content:center; gap:20px; margin-bottom:18px; }
+  .final-scores{ display:flex; justify-content:center; gap:20px; margin-bottom:18px; flex-wrap:wrap; }
   .final-scores .fs{ text-align:center; }
   .final-scores .fs .n{ font-family:'Space Mono', monospace; font-weight:700; font-size:30px; }
   .final-scores .fs .l{ font-family:'Space Mono', monospace; font-size:10px; color:var(--ink-dim); letter-spacing:1px; }
@@ -524,7 +524,7 @@
   .profile-pic-sm{
     width:26px; height:26px; border-radius:50%; overflow:hidden; border:2px solid var(--amber);
     background:#150c3d; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
-    color:var(--ink-dim); flex-shrink:0;
+    color:var(--ink-dim); flex-shrink:0; cursor:pointer;
   }
   .profile-pic-sm img{ width:100%; height:100%; object-fit:cover; }
 
@@ -623,7 +623,6 @@
       <div class="brand-sub">solo · 1v1 · leaderboard</div>
     </div>
     <div class="header-actions">
-      <div class="pill" id="headerPill"><div class="dot"></div><span id="headerPillLabel">···</span></div>
       <div class="profile-chip" id="homeProfile" title="Edit profile">
         <div class="profile-pic" id="homeProfilePic"><span id="homeProfilePicInitial">?</span></div>
         <span class="profile-chip-name" id="homeProfileName">Guest</span>
@@ -742,7 +741,7 @@
       <div class="boards-row">
         <div class="side me">
           <div class="side-header">
-            <div class="side-name"><div class="profile-pic-sm" id="myPicSm">Y</div><span class="nm" id="myNameLabel">You</span> <span class="win-badge" id="myWinBadge">🏆0</span></div>
+            <div class="side-name"><div class="profile-pic-sm" id="myPicSm" title="View your profile">Y</div><span class="nm" id="myNameLabel">You</span> <span class="win-badge" id="myWinBadge">🏆0</span></div>
             <div class="side-score mono" id="myScoreVal">0</div>
           </div>
           <div class="panel" id="myPanel">
@@ -759,7 +758,7 @@
 
         <div class="side opp">
           <div class="side-header">
-            <div class="side-name"><div class="profile-pic-sm" id="oppPicSm">O</div><span class="nm" id="oppNameLabel">Opponent</span> <span class="win-badge" id="oppWinBadge">🏆0</span></div>
+            <div class="side-name"><div class="profile-pic-sm" id="oppPicSm" title="View opponent's profile">O</div><span class="nm" id="oppNameLabel">Opponent</span> <span class="win-badge" id="oppWinBadge">🏆0</span></div>
             <div class="side-score mono" id="oppScoreVal">0</div>
           </div>
           <div class="panel opp" id="oppPanel">
@@ -783,7 +782,7 @@
         </div>
       </div>
 
-      <div class="hint">Drag a piece onto your board before your placement timer runs out. Miss 3 placements in a row and you auto-forfeit. If one player tops out, the other races the clock to beat their score.</div>
+      <div class="hint">Drag a piece onto your board before your placement timer runs out. Miss 3 placements in a row and you auto-forfeit. If one player tops out, the other races the clock to beat their score. Tap either avatar to view a profile.</div>
     </div>
   </div>
 
@@ -812,7 +811,7 @@
     </div>
     <div class="menu-card" style="max-width:420px;">
       <h2>Friends</h2>
-      <p class="sub">Add friends by their display name, then chat or challenge them to a match directly.</p>
+      <p class="sub">Add friends by their display name, then view their profile, chat, or challenge them to a match directly.</p>
       <div class="name-edit" style="width:100%; justify-content:center; margin-bottom:14px; position:relative;">
         <input id="addFriendInput" placeholder="friend's display name" maxlength="20" style="flex:1;">
         <button class="icon-btn" id="addFriendBtn" title="Add friend">+</button>
@@ -831,7 +830,8 @@
 
       <div class="profile-pic" id="profilePicBtn"><span id="profilePicInitial">?</span></div>
       <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
-      <p class="sub" style="text-align:center;margin-top:-6px;">tap avatar to upload a photo</p>
+      <p class="sub" style="text-align:center;margin-top:-6px;">tap avatar to upload a photo — visible to everyone who views your profile</p>
+      <p class="sub" id="removePicHint" style="text-align:center;margin-top:-14px; cursor:pointer; text-decoration:underline; display:none;">remove photo</p>
 
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
         <div class="lbl">Display name</div>
@@ -840,6 +840,13 @@
           <button class="icon-btn" id="saveNameBtn" title="Save name">✓</button>
           <div class="lobby-status" id="nameStatus"></div>
         </div>
+      </div>
+
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="lbl">Bio</div>
+        <div class="desc">shown on your public profile</div>
+        <textarea id="bioInput" maxlength="140" rows="2" placeholder="say something about yourself…" style="width:100%; padding:10px 12px; font-family:'Fredoka','Baloo 2',sans-serif; font-size:13px; background:#150c3d; border:2px solid #4a3899; border-radius:12px; color:var(--ink); resize:vertical;"></textarea>
+        <button class="action" id="saveBioBtn">Save bio</button>
       </div>
 
       <div class="settings-row">
@@ -932,6 +939,28 @@
       <div class="stack-btns">
         <button class="action primary" id="inviteAcceptBtn">Accept</button>
         <button class="action" id="inviteDeclineBtn">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- player profile modal ("stalk" a player: pic, name, wins/losses, bio, actions) -->
+  <div class="overlay" id="profileViewOverlay">
+    <div class="overlay-card">
+      <div class="profile-pic" id="pvPic" style="width:84px;height:84px;font-size:32px;cursor:default;"><span id="pvPicInitial">?</span></div>
+      <h2 id="pvName" style="margin-bottom:2px;">Player</h2>
+      <div class="win-badge" id="pvOnlineBadge" style="margin-bottom:12px; display:inline-block;">●</div>
+      <div class="final-scores">
+        <div class="fs"><div class="n mono" id="pvWins">0</div><div class="l">WINS</div></div>
+        <div class="fs"><div class="n mono" id="pvLosses">0</div><div class="l">LOSSES</div></div>
+        <div class="fs"><div class="n mono" id="pvDraws">0</div><div class="l">DRAWS</div></div>
+        <div class="fs"><div class="n mono" id="pvBest">0</div><div class="l">BEST</div></div>
+      </div>
+      <p id="pvBio" style="min-height:32px;">No bio yet.</p>
+      <div class="stack-btns">
+        <button class="action primary" id="pvAddFriendBtn">Add friend</button>
+        <button class="action" id="pvChatBtn">Chat</button>
+        <button class="action" id="pvChallengeBtn">Challenge to match</button>
+        <button class="action" id="pvCloseBtn">Close</button>
       </div>
     </div>
   </div>
@@ -1072,7 +1101,7 @@
           await fb.setDoc(ref, { name, bestScore: score, updatedAt: fb.serverTimestamp() }, { merge:true });
         }
       } else {
-        await fb.setDoc(ref, { name, bestScore: score, wins:0, losses:0, draws:0, updatedAt: fb.serverTimestamp() });
+        await fb.setDoc(ref, { name, bestScore: score, wins:0, losses:0, draws:0, bio:'', updatedAt: fb.serverTimestamp() });
       }
     }catch(e){ console.error('submitSoloScore failed', e); }
   }
@@ -1088,20 +1117,61 @@
       if(snap.exists()){
         await fb.updateDoc(ref, { [field]: fb.increment(1), name, updatedAt: fb.serverTimestamp() });
       } else {
-        await fb.setDoc(ref, { name, bestScore:0, wins:0, losses:0, draws:0, [field]:1, updatedAt: fb.serverTimestamp() });
+        await fb.setDoc(ref, { name, bestScore:0, wins:0, losses:0, draws:0, bio:'', [field]:1, updatedAt: fb.serverTimestamp() });
       }
     }catch(e){ console.error('recordMatchResult failed', e); }
   }
 
+  async function saveProfileBio(name, bio){
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{
+      const ref = fb.doc(db, 'players', slugify(name));
+      const snap = await fb.getDoc(ref);
+      if(snap.exists()){
+        await fb.setDoc(ref, { name, bio, updatedAt: fb.serverTimestamp() }, { merge:true });
+      } else {
+        await fb.setDoc(ref, { name, bestScore:0, wins:0, losses:0, draws:0, bio, updatedAt: fb.serverTimestamp() });
+      }
+    }catch(e){ console.error('saveProfileBio failed', e); }
+  }
+
+  // Stores a (already resized/compressed) avatar data URL on the player's
+  // Firestore doc so it's visible to anyone who views their profile, not
+  // just people they're currently in a live P2P match with. Avatars are
+  // resized+compressed client-side before this is called to keep Firestore
+  // document size sane (docs cap out at 1MB; a 220x220 JPEG here typically
+  // lands well under 100KB as a base64 string).
+  async function saveProfilePic(name, picDataUrl){
+    await initFirebase();
+    if(!firebaseReady) throw new Error('backend not configured');
+    const ref = fb.doc(db, 'players', slugify(name));
+    const snap = await fb.getDoc(ref);
+    if(snap.exists()){
+      await fb.setDoc(ref, { name, pic: picDataUrl, updatedAt: fb.serverTimestamp() }, { merge:true });
+    } else {
+      await fb.setDoc(ref, { name, bestScore:0, wins:0, losses:0, draws:0, bio:'', pic: picDataUrl, updatedAt: fb.serverTimestamp() });
+    }
+  }
+
+  async function removeProfilePic(name){
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{
+      const ref = fb.doc(db, 'players', slugify(name));
+      await fb.setDoc(ref, { pic: fb.deleteField() }, { merge:true });
+    }catch(e){ console.error('removeProfilePic failed', e); }
+  }
+
   async function fetchPlayerStats(name){
     await initFirebase();
-    if(!firebaseReady) return { wins:0, losses:0, draws:0, bestScore:0 };
+    if(!firebaseReady) return { wins:0, losses:0, draws:0, bestScore:0, bio:'', pic:null };
     try{
       const id = slugify(name);
       const snap = await fb.getDoc(fb.doc(db, 'players', id));
       if(snap.exists()) return snap.data();
     }catch(e){ console.error('fetchPlayerStats failed', e); }
-    return { wins:0, losses:0, draws:0, bestScore:0 };
+    return { wins:0, losses:0, draws:0, bestScore:0, bio:'', pic:null };
   }
 
   async function fetchSoloLeaderboard(){
@@ -1131,14 +1201,19 @@
     rows.forEach((r, i) => {
       const row = document.createElement('div');
       row.className = 'lb-row' + (r.name === playerName ? ' me' : '');
+      const nameEsc = escapeHtml(r.name||'?');
       if(mode === 'solo'){
-        row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${escapeHtml(r.name||'?')}</span><span class="lb-value">${r.bestScore||0}</span>`;
+        row.innerHTML = `<span class="lb-rank">#${i+1}</span><div class="profile-pic-sm" data-view="${nameEsc}" title="View profile"></div><span class="lb-name" data-view="${nameEsc}" style="cursor:pointer;">${nameEsc}</span><span class="lb-value">${r.bestScore||0}</span>`;
       } else {
         const w=r.wins||0, l=r.losses||0, d=r.draws||0;
-        row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${escapeHtml(r.name||'?')}</span><span class="lb-value">${w}W<span class="lb-sub">${l}L · ${d}D</span></span>`;
+        row.innerHTML = `<span class="lb-rank">#${i+1}</span><div class="profile-pic-sm" data-view="${nameEsc}" title="View profile"></div><span class="lb-name" data-view="${nameEsc}" style="cursor:pointer;">${nameEsc}</span><span class="lb-value">${w}W<span class="lb-sub">${l}L · ${d}D</span></span>`;
       }
+      // The leaderboard query already pulled full player docs, so the
+      // synced avatar (if any) is right there on `r.pic` — no extra reads.
+      setProfilePicEl(row.querySelector('.profile-pic-sm'), r.name||'?', r.pic || null);
       el.appendChild(row);
     });
+    el.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => openProfileView(node.dataset.view)));
   }
 
   async function loadLeaderboards(){
@@ -1172,15 +1247,9 @@
   let playerName = localStorage.getItem(NAME_KEY) || '';
 
   function updateHeaderPill(){
-    const label = document.getElementById('headerPillLabel');
-    const pill = document.getElementById('headerPill');
-    if(playerName){
-      label.textContent = playerName;
-      pill.classList.add('online'); pill.classList.remove('offline');
-    } else {
-      label.textContent = 'no name set';
-      pill.classList.remove('online'); pill.classList.add('offline');
-    }
+    // The old header pill (name + green online dot) was removed since it
+    // duplicated the name already shown in the profile chip next to it.
+    // Kept as a no-op so existing call sites don't need to change.
   }
 
   function ensureName(){
@@ -1218,16 +1287,39 @@
 
   /* =========================================================================
      SCREEN SWITCHING (+ always-available back button)
+
+     The app previously never touched the History API, so pressing the
+     browser back button (or a phone's back gesture/hardware button) didn't
+     navigate within the app at all — it just fell through to whatever page
+     was open before Blockhoard, which looked like the game randomly
+     vanishing instead of stepping back to the main menu. Every screen
+     change now pushes a history entry, and a `popstate` listener below
+     routes back-button presses through the exact same navigation/cleanup
+     logic as the in-app back button, so back always resolves somewhere
+     sane inside the app and, from any screen, eventually lands on the
+     main menu.
   ========================================================================= */
+  let suppressHistoryPush = false;
+
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     updateBackButton(id);
+    // Close any open modal so the browser back button never leaves you
+    // staring at a settings/profile/chat overlay layered over the wrong screen.
+    document.querySelectorAll('.overlay.show').forEach(o => o.classList.remove('show'));
+    if(!suppressHistoryPush){
+      history.pushState({ screen: id }, '');
+    }
   }
   function updateBackButton(screenId){
     const backBtn = document.getElementById('globalBackBtn');
     backBtn.style.display = (screenId === 'screen-home') ? 'none' : 'flex';
   }
+  // Baseline history entry for the screen we're already showing on load,
+  // so the very first back-button press has something correct to land on.
+  history.replaceState({ screen: 'screen-home' }, '');
+
   document.getElementById('brandHome').addEventListener('click', () => showScreen('screen-home'));
   document.getElementById('globalBackBtn').addEventListener('click', () => {
     const current = document.querySelector('.screen.active').id;
@@ -1239,6 +1331,23 @@
       return;
     }
     showScreen('screen-home');
+  });
+
+  window.addEventListener('popstate', (e) => {
+    const current = document.querySelector('.screen.active').id;
+    // Leaving an active match via back navigation needs the same full
+    // teardown (peer connection, timers, presence) as the explicit "Leave
+    // room" button, so route it through the same function rather than
+    // trying to reconcile live match state with an arbitrary target screen.
+    if(current === 'screen-mp-match'){ leaveMatch(); return; }
+    const targetScreen = (e.state && e.state.screen) || 'screen-home';
+    suppressHistoryPush = true;
+    if(current === 'screen-mp-lobby' && targetScreen !== 'screen-mp-lobby'){
+      if(inQueue) leaveQueue();
+      destroyPeer();
+    }
+    showScreen(targetScreen);
+    suppressHistoryPush = false;
   });
 
   /* =========================================================================
@@ -1424,6 +1533,22 @@
   applyTheme(theme);
   updateSwitches();
   if(musicOn) startMusic();
+
+  /* =========================================================================
+     BIO
+  ========================================================================= */
+  let myBio = localStorage.getItem('blockhoard_bio') || '';
+  document.getElementById('bioInput').value = myBio;
+  document.getElementById('saveBioBtn').addEventListener('click', async () => {
+    myBio = document.getElementById('bioInput').value.trim().slice(0,140);
+    localStorage.setItem('blockhoard_bio', myBio);
+    await saveProfileBio(ensureName(), myBio);
+    const statusEl = document.getElementById('nameStatus');
+    statusEl.className = 'lobby-status ok';
+    statusEl.textContent = 'bio saved!';
+    clearTimeout(statusEl._t);
+    statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 1400);
+  });
 
   /* =========================================================================
      SOLO MODE
@@ -1697,9 +1822,10 @@
   function mpRandomGem(){ return GEMS[Math.floor(seededRandom()*GEMS.length)]; }
 
   function setConnStatus(online, label){
-    const pill = document.getElementById('headerPill');
-    pill.className = 'pill ' + (online ? 'online' : 'offline');
-    document.getElementById('headerPillLabel').textContent = label;
+    // The header pill this used to update was removed (it duplicated the
+    // profile chip's name display). Connection status is still visible via
+    // the lobby status text (createStatus/joinStatus/quickStatus) and the
+    // in-match status strips, so this is now a safe no-op.
   }
 
   function destroyPeer(){
@@ -1800,13 +1926,51 @@
     });
   });
 
+  /* ---------------------------------------------------------------------
+     JOIN RETRY LOGIC (fixed)
+     Previously the 7s "still connecting" timeout and the PeerJS 'error'
+     handler could BOTH fire for the same attempt (e.g. an error arrives
+     just before the timeout elapses), each independently kicking off a
+     retry. That produced overlapping connection attempts that stomped on
+     each other and made both direct room-codes and quick-match flaky.
+     Now every attempt has a single `settled` guard that both the error
+     handler and the timeout check-and-set atomically (synchronously, so
+     there's no window for both to proceed), and the timeout is cleared
+     as soon as the attempt settles either way. Retries also now use a
+     bit more time/attempts since the other side (especially in quick
+     match) may still be spinning up its PeerJS connection.
+  --------------------------------------------------------------------- */
+  const JOIN_MAX_ATTEMPTS = 4; // total attempts (0-indexed attempt < JOIN_MAX_ATTEMPTS-1 retries)
+  const JOIN_ATTEMPT_TIMEOUT = 9000;
+  const JOIN_RETRY_DELAYS = [700, 1200, 2000];
+
   function attemptJoin(code, statusEl, btn, attempt){
     const targetId = 'blockhoard-' + code;
     let settled = false;
+    let timeoutId = null;
     conn = peer.connect(targetId, { reliable: true });
 
+    function retryOrFail(reasonText, errType){
+      if(attempt < JOIN_MAX_ATTEMPTS - 1){
+        statusEl.textContent = reasonText + ' — retrying…';
+        try{ conn.close(); }catch(e){}
+        const delay = JOIN_RETRY_DELAYS[Math.min(attempt, JOIN_RETRY_DELAYS.length-1)];
+        setTimeout(() => attemptJoin(code, statusEl, btn, attempt+1), delay);
+        return;
+      }
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = errType === 'peer-unavailable'
+        ? 'no room found with that code — make sure the host is still on this screen'
+        : errType
+          ? `connection error (${errType}) — try again`
+          : 'no response — check the code and try again';
+      if(btn) btn.disabled = false;
+    }
+
     conn.on('open', () => {
+      if(settled) return;
       settled = true;
+      clearTimeout(timeoutId);
       statusEl.className = 'lobby-status ok';
       statusEl.textContent = 'connected!';
     });
@@ -1814,35 +1978,16 @@
 
     conn.on('error', (err) => {
       if(settled) return;
-      if(attempt < 2){
-        statusEl.textContent = 'connection hiccup — retrying…';
-        try{ conn.close(); }catch(e){}
-        setTimeout(() => attemptJoin(code, statusEl, btn, attempt+1), 600);
-        return;
-      }
       settled = true;
-      statusEl.className = 'lobby-status err';
-      statusEl.textContent = (err && err.type === 'peer-unavailable')
-        ? 'no room found with that code'
-        : (err && err.type)
-          ? `connection error (${err.type}) — try again`
-          : 'could not reach that room — check the code';
-      if(btn) btn.disabled = false;
+      clearTimeout(timeoutId);
+      retryOrFail('connection hiccup', err && err.type);
     });
 
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       if(settled || matchActive) return;
-      if(attempt < 2){
-        statusEl.textContent = 'still connecting — retrying…';
-        try{ conn.close(); }catch(e){}
-        attemptJoin(code, statusEl, btn, attempt+1);
-      } else {
-        settled = true;
-        statusEl.className = 'lobby-status err';
-        statusEl.textContent = 'no response — check the code and try again';
-        if(btn) btn.disabled = false;
-      }
-    }, 7000);
+      settled = true;
+      retryOrFail('still connecting', null);
+    }, JOIN_ATTEMPT_TIMEOUT);
   }
 
   document.getElementById('joinBtn').addEventListener('click', async () => {
@@ -1881,6 +2026,9 @@
     conn.on('open', () => {
       setConnStatus(true, 'connected');
       conn.send({ type:'hello', name: ensureName(), pic: myProfilePic });
+      // Clean up our own quick-match queue entry now that we're paired —
+      // otherwise a stale "waiting" doc could linger and confuse the next search.
+      clearOwnQueueDoc();
       if(isHost){
         seedShared = makeSeed();
         conn.send({ type:'start', seed: seedShared });
@@ -2570,10 +2718,21 @@
 
   /* =========================================================================
      PROFILE PICTURE
+     Avatars are resized+cropped to a small square JPEG client-side (so they
+     stay well under Firestore's 1MB document limit and load fast), stored
+     locally for instant display, and synced to the player's Firestore doc
+     (`players/{id}.pic`) so anyone viewing that player's profile — friends,
+     leaderboard, an opponent who hasn't connected yet — sees the real photo
+     instead of just an initial. If this device has no local avatar yet
+     (e.g. a fresh browser/device for an existing player name), we pull one
+     down from Firestore automatically.
   ========================================================================= */
   const PIC_KEY = 'blockhoard_profilepic';
   let myProfilePic = localStorage.getItem(PIC_KEY) || null;
   let oppProfilePic = null;
+  const AVATAR_SIZE = 220;      // square output dimensions, px
+  const AVATAR_QUALITY = 0.85;  // JPEG quality
+  const AVATAR_MAX_UPLOAD_BYTES = 12 * 1024 * 1024; // source file size cap before we even try to resize
 
   function setProfilePicEl(el, name, dataUrl){
     if(dataUrl){
@@ -2590,25 +2749,105 @@
     } else {
       btn.innerHTML = '<span id="profilePicInitial">' + ((playerName||'?').trim().charAt(0).toUpperCase()||'?') + '</span>';
     }
+    updateRemovePicHint();
   }
+  function updateRemovePicHint(){
+    const hint = document.getElementById('removePicHint');
+    if(hint) hint.style.display = myProfilePic ? '' : 'none';
+  }
+
+  // Center-crops the source image to a square and downsamples it via canvas,
+  // returning a compact JPEG data URL. Keeps uploads fast to store/sync and
+  // fast to load in friend lists / leaderboards / profile views.
+  function resizeImageFile(file, size, quality){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          try{
+            const side = Math.min(img.width, img.height);
+            const sx = (img.width - side) / 2;
+            const sy = (img.height - side) / 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          }catch(err){ reject(err); }
+        };
+        img.onerror = () => reject(new Error('could not read that image'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('could not read that file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
   document.getElementById('profilePicBtn').addEventListener('click', () => document.getElementById('profilePicInput').click());
-  document.getElementById('profilePicInput').addEventListener('change', (e) => {
+  document.getElementById('profilePicInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
+    e.target.value = ''; // allow re-selecting the same file later
     if(!file) return;
-    if(file.size > 1.5*1024*1024){
-      alert('Please choose an image under 1.5MB.');
+    if(!file.type || !file.type.startsWith('image/')){
+      alert('Please choose an image file.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      myProfilePic = reader.result;
+    if(file.size > AVATAR_MAX_UPLOAD_BYTES){
+      alert('Please choose an image under 12MB.');
+      return;
+    }
+    const statusEl = document.getElementById('nameStatus');
+    try{
+      statusEl.className = 'lobby-status';
+      statusEl.textContent = 'processing photo…';
+      const dataUrl = await resizeImageFile(file, AVATAR_SIZE, AVATAR_QUALITY);
+      myProfilePic = dataUrl;
       localStorage.setItem(PIC_KEY, myProfilePic);
       refreshProfilePicUI();
       refreshHomeProfile();
       playSfx('click');
-    };
-    reader.readAsDataURL(file);
+
+      statusEl.textContent = 'syncing avatar…';
+      await saveProfilePic(ensureName(), myProfilePic);
+      statusEl.className = 'lobby-status ok';
+      statusEl.textContent = 'avatar saved!';
+    }catch(err){
+      console.error('avatar upload failed', err);
+      statusEl.className = 'lobby-status err';
+      statusEl.textContent = (err && err.message === 'backend not configured')
+        ? 'saved on this device — cloud sync isn\'t configured yet'
+        : 'could not process that image — try a different one';
+    }
+    clearTimeout(statusEl._t);
+    statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 2200);
   });
+
+  document.getElementById('removePicHint').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if(!myProfilePic) return;
+    myProfilePic = null;
+    localStorage.removeItem(PIC_KEY);
+    refreshProfilePicUI();
+    refreshHomeProfile();
+    playSfx('click');
+    await removeProfilePic(ensureName());
+  });
+
+  // If this browser/device has no locally-saved avatar for the current
+  // name, check whether one was already synced to Firestore from another
+  // device/session and pull it down so the player doesn't have to re-upload.
+  async function syncMyProfilePicFromCloud(){
+    if(myProfilePic) return;
+    const stats = await fetchPlayerStats(ensureName());
+    if(stats && stats.pic){
+      myProfilePic = stats.pic;
+      localStorage.setItem(PIC_KEY, myProfilePic);
+      refreshProfilePicUI();
+      refreshHomeProfile();
+    }
+  }
+
   refreshProfilePicUI();
 
   /* ---------------- home menu profile summary ---------------- */
@@ -2624,6 +2863,95 @@
     document.getElementById('settingsOverlay').classList.add('show');
   });
   refreshHomeProfile();
+
+  /* =========================================================================
+     PLAYER PROFILE VIEW ("stalk" any player: pic, name, wins/losses/draws,
+     best score, bio, and quick actions to add/remove friend, chat, or
+     challenge them). Used from the friends list, the leaderboard, and by
+     tapping either avatar in an active 1v1 match.
+  ========================================================================= */
+  let pvCurrentName = null;
+
+  async function openProfileView(name, picUrl){
+    name = (name||'').trim();
+    if(!name) return;
+    pvCurrentName = name;
+    const isMe = slugify(name) === slugify(ensureName());
+
+    document.getElementById('pvName').textContent = name;
+    setProfilePicEl(document.getElementById('pvPic'), name, picUrl || (isMe ? myProfilePic : null));
+    document.getElementById('pvWins').textContent = '0';
+    document.getElementById('pvLosses').textContent = '0';
+    document.getElementById('pvDraws').textContent = '0';
+    document.getElementById('pvBest').textContent = '0';
+    document.getElementById('pvBio').textContent = 'loading…';
+    document.getElementById('pvOnlineBadge').textContent = '···';
+
+    const isFriend = friendsListLocal.some(f => slugify(f) === slugify(name));
+    const addBtn = document.getElementById('pvAddFriendBtn');
+    addBtn.style.display = isMe ? 'none' : '';
+    addBtn.textContent = isFriend ? 'Remove friend' : 'Add friend';
+    document.getElementById('pvChatBtn').style.display = isMe ? 'none' : '';
+    document.getElementById('pvChallengeBtn').style.display = isMe ? 'none' : '';
+
+    document.getElementById('profileViewOverlay').classList.add('show');
+
+    await initFirebase();
+    if(firebaseReady){
+      const online = await isFriendOnline(name);
+      document.getElementById('pvOnlineBadge').textContent = online ? '● online' : '○ offline';
+      document.getElementById('pvOnlineBadge').style.color = online ? 'var(--win)' : '';
+    } else {
+      document.getElementById('pvOnlineBadge').textContent = '';
+    }
+
+    const stats = await fetchPlayerStats(name);
+    if(pvCurrentName !== name) return; // profile switched while loading
+    document.getElementById('pvWins').textContent = stats.wins||0;
+    document.getElementById('pvLosses').textContent = stats.losses||0;
+    document.getElementById('pvDraws').textContent = stats.draws||0;
+    document.getElementById('pvBest').textContent = stats.bestScore||0;
+    document.getElementById('pvBio').textContent = (isMe ? myBio : stats.bio) ? (isMe ? myBio : stats.bio) : 'No bio yet.';
+    // Prefer whatever picture we already had (a live P2P avatar from an
+    // active match, or our own local one); otherwise fall back to whatever
+    // this player has synced to their Firestore profile.
+    if(!picUrl && !isMe && stats.pic){
+      setProfilePicEl(document.getElementById('pvPic'), name, stats.pic);
+    }
+  }
+
+  document.getElementById('pvCloseBtn').addEventListener('click', () => {
+    document.getElementById('profileViewOverlay').classList.remove('show');
+  });
+  document.getElementById('pvAddFriendBtn').addEventListener('click', () => {
+    if(!pvCurrentName) return;
+    const isFriend = friendsListLocal.some(f => slugify(f) === slugify(pvCurrentName));
+    if(isFriend){
+      removeFriend(pvCurrentName);
+      document.getElementById('pvAddFriendBtn').textContent = 'Add friend';
+    } else {
+      addFriend(pvCurrentName);
+      document.getElementById('pvAddFriendBtn').textContent = 'Remove friend';
+    }
+  });
+  document.getElementById('pvChatBtn').addEventListener('click', () => {
+    if(!pvCurrentName) return;
+    document.getElementById('profileViewOverlay').classList.remove('show');
+    openFriendChat(pvCurrentName);
+  });
+  document.getElementById('pvChallengeBtn').addEventListener('click', () => {
+    if(!pvCurrentName) return;
+    document.getElementById('profileViewOverlay').classList.remove('show');
+    sendFriendInvite(pvCurrentName);
+  });
+
+  // Clicking either avatar in an active match opens that player's profile.
+  document.getElementById('myPicSm').addEventListener('click', () => openProfileView(ensureName(), myProfilePic));
+  document.getElementById('oppPicSm').addEventListener('click', () => {
+    if(isVsAI) return; // no profile to stalk for the bot
+    if(!oppName || oppName === 'Opponent') return;
+    openProfileView(oppName, oppProfilePic);
+  });
 
   /* =========================================================================
      CUSTOMIZATION — background theme (reuses theme swatches) + block color sets
@@ -2775,6 +3103,16 @@
   }
   window.addEventListener('beforeunload', () => { clearPresence(); leaveQueue(); });
 
+  // Deletes our own queue doc, if any, without touching the `inQueue` UI state
+  // machine — used right after a connection opens (from either the create/join
+  // flow or quick match) so leftover "waiting" entries don't clutter Firestore
+  // or confuse the next quick-match search.
+  async function clearOwnQueueDoc(){
+    await initFirebase();
+    if(!firebaseReady) return;
+    try{ await fb.deleteDoc(fb.doc(db,'queue', slugify(ensureName()))); }catch(e){}
+  }
+
   async function joinQueue(){
     await initFirebase();
     const statusEl = document.getElementById('quickStatus');
@@ -2815,8 +3153,12 @@
         statusEl.className = 'lobby-status ok';
         statusEl.textContent = 'opponent found — connecting…';
         inQueue = false;
+        clearTimeout(joinQueue._timeout);
         document.getElementById('quickMatchBtn').style.display = '';
         document.getElementById('cancelQuickBtn').style.display = 'none';
+        // I'm the one who found+claimed a waiting player, so I connect to
+        // THEM as the joiner — they (still) hold the host peer id for this
+        // room and will open it once their listener below picks up the claim.
         startQuickMatchAsJoiner(roomCode);
         return;
       }
@@ -2825,16 +3167,22 @@
       await fb.setDoc(myDocRef, { name: playerName, joinedAt: fb.serverTimestamp(), matchedWith: null, roomCode: null });
       queueUnsub = fb.onSnapshot(myDocRef, (docSnap) => {
         if(!inQueue) return;
+        if(!docSnap.exists()) return;
         const data = docSnap.data();
         if(data && data.matchedWith && data.roomCode){
           statusEl.className = 'lobby-status ok';
           statusEl.textContent = 'opponent found — connecting…';
           inQueue = false;
+          clearTimeout(joinQueue._timeout);
           document.getElementById('quickMatchBtn').style.display = '';
           document.getElementById('cancelQuickBtn').style.display = 'none';
           if(queueUnsub){ queueUnsub(); queueUnsub = null; }
+          // I was claimed, so I open the host peer id for this room and
+          // wait for the claimer to connect to me.
           startQuickMatchAsHost(data.roomCode);
         }
+      }, (err) => {
+        console.error('queue listen failed', err);
       });
 
       clearTimeout(joinQueue._timeout);
@@ -2896,7 +3244,15 @@
         await initPeer(undefined);
         isHost = false;
         isVsAI = false;
-        attemptJoin(roomCode, document.getElementById('quickStatus'), document.getElementById('quickMatchBtn'), 0);
+        // Small head start before the first attempt: the host side needs a
+        // round trip through Firestore's onSnapshot before it even starts
+        // opening its PeerJS connection, so an immediate first attempt was
+        // reliably hitting "peer-unavailable" and burning a retry. The
+        // attemptJoin retry loop still covers the rest of the wait.
+        document.getElementById('quickStatus').textContent = 'opponent found — connecting…';
+        setTimeout(() => {
+          attemptJoin(roomCode, document.getElementById('quickStatus'), document.getElementById('quickMatchBtn'), 0);
+        }, 900);
       }catch(e){
         const s = document.getElementById('quickStatus');
         s.className = 'lobby-status err'; s.textContent = 'could not connect — try again';
@@ -2914,8 +3270,9 @@
   });
 
   /* =========================================================================
-     FRIENDS — add by display name, see online status, chat 1:1, and send
-     direct match invites (separate from the public quick-match queue).
+     FRIENDS — add by display name, see online status, view profiles ("stalk"),
+     chat 1:1, and send direct match invites (separate from the public
+     quick-match queue).
   ========================================================================= */
   let friendsListLocal = [];
   try{ friendsListLocal = JSON.parse(localStorage.getItem('blockhoard_friends') || '[]'); }catch(e){ friendsListLocal = []; }
@@ -2970,19 +3327,25 @@
     if(friendsListLocal.length === 0){ el.innerHTML = '<div class="lb-empty mono">No friends yet — add one above.</div>'; return; }
     await initFirebase();
     for(const name of friendsListLocal){
-      const online = firebaseReady ? await isFriendOnline(name) : false;
+      const [online, stats] = await Promise.all([
+        firebaseReady ? isFriendOnline(name) : Promise.resolve(false),
+        firebaseReady ? fetchPlayerStats(name) : Promise.resolve(null)
+      ]);
       const row = document.createElement('div');
       row.className = 'lb-row';
       row.innerHTML = `
         <span class="pill ${online?'online':'offline'}" style="padding:4px 8px;"><span class="dot"></span></span>
-        <span class="lb-name">${escapeHtml(name)}</span>
+        <div class="profile-pic-sm" data-view="${escapeHtml(name)}" title="View profile"></div>
+        <span class="lb-name" data-view="${escapeHtml(name)}" style="cursor:pointer;">${escapeHtml(name)}</span>
         <span style="display:flex; gap:6px;">
           <button class="icon-btn" data-chat="${escapeHtml(name)}" title="Chat" style="width:32px;height:32px;font-size:13px;">💬</button>
           <button class="icon-btn" data-invite="${escapeHtml(name)}" title="Invite to match" style="width:32px;height:32px;font-size:13px;">⚔️</button>
           <button class="icon-btn" data-remove="${escapeHtml(name)}" title="Remove" style="width:32px;height:32px;font-size:13px;">✕</button>
         </span>`;
+      setProfilePicEl(row.querySelector('.profile-pic-sm'), name, (stats && stats.pic) || null);
       el.appendChild(row);
     }
+    el.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => openProfileView(node.dataset.view)));
     el.querySelectorAll('[data-chat]').forEach(btn => btn.addEventListener('click', () => openFriendChat(btn.dataset.chat)));
     el.querySelectorAll('[data-invite]').forEach(btn => btn.addEventListener('click', () => sendFriendInvite(btn.dataset.invite)));
     el.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeFriend(btn.dataset.remove)));
@@ -3138,6 +3501,7 @@
 
   ensureName();
   startPresenceLoop();
+  syncMyProfilePicFromCloud();
 
 })();
 </script>
