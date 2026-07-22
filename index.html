@@ -822,6 +822,7 @@
         <span>Your friends</span><span class="win-badge" id="friendsCountBadge">0</span>
       </div>
       <div class="lb-list" id="friendsList"></div>
+      <div id="friendsPagination" style="display:flex; align-items:center; justify-content:center; gap:10px; margin:-4px 0 4px;"></div>
 
       <div style="text-align:left; font-weight:700; font-size:13px; margin:18px 0 8px; display:flex; align-items:center; justify-content:space-between;">
         <span>Other players</span><span class="win-badge" id="otherPlayersCountBadge">0</span>
@@ -829,6 +830,7 @@
       <p class="sub" style="text-align:left; margin:-4px 0 8px;">Everyone else who's played Blockhoard — tap + to add a friend.</p>
       <div class="lobby-status" id="otherPlayersStatus"></div>
       <div class="lb-list" id="otherPlayersList"></div>
+      <div id="otherPlayersPagination" style="display:flex; align-items:center; justify-content:center; gap:10px; margin:-4px 0 4px;"></div>
     </div>
   </div>
 
@@ -1202,10 +1204,12 @@
   // Every player who has ever set a name (played solo, played 1v1, or saved
   // a profile) shows up here — used by the Friends screen's "Other players"
   // list so people can discover and add friends without knowing an exact
-  // name in advance.
+  // name in advance. Fetched once per render and paginated client-side
+  // (see PLAYERS_PAGE_SIZE below); the 200-player cap keeps a single read
+  // reasonable while comfortably covering a casual game's player base.
   async function fetchAllPlayers(){
     if(!firebaseReady) return [];
-    const q = fb.query(fb.collection(db,'players'), fb.orderBy('name'), fb.limit(60));
+    const q = fb.query(fb.collection(db,'players'), fb.orderBy('name'), fb.limit(200));
     const snaps = await fb.getDocs(q);
     return snaps.docs.map(d=>d.data());
   }
@@ -3302,7 +3306,48 @@
   let currentFriendChat = null;
   let friendChatUnsub = null;
 
+  const PLAYERS_PAGE_SIZE = 6;
+  let friendsPage = 0;
+  let otherPlayersPage = 0;
+
   function saveFriendsLocal(){ localStorage.setItem('blockhoard_friends', JSON.stringify(friendsListLocal)); }
+
+  // Renders Prev/Page-X-of-Y/Next controls into `container`. `onPageChange`
+  // receives the new page index; hidden entirely when everything fits on
+  // one page.
+  function renderPaginationControls(container, page, totalPages, onPageChange){
+    container.innerHTML = '';
+    if(totalPages <= 1) return;
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'icon-btn';
+    prevBtn.textContent = '‹';
+    prevBtn.title = 'Previous page';
+    prevBtn.style.width = '32px'; prevBtn.style.height = '32px'; prevBtn.style.fontSize = '15px';
+    prevBtn.disabled = page <= 0;
+    prevBtn.style.opacity = prevBtn.disabled ? '0.4' : '1';
+    prevBtn.style.cursor = prevBtn.disabled ? 'default' : 'pointer';
+    prevBtn.addEventListener('click', () => onPageChange(page - 1));
+
+    const label = document.createElement('span');
+    label.className = 'mono';
+    label.style.fontSize = '11px';
+    label.style.color = 'var(--ink-dim)';
+    label.textContent = `Page ${page + 1} of ${totalPages}`;
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'icon-btn';
+    nextBtn.textContent = '›';
+    nextBtn.title = 'Next page';
+    nextBtn.style.width = '32px'; nextBtn.style.height = '32px'; nextBtn.style.fontSize = '15px';
+    nextBtn.disabled = page >= totalPages - 1;
+    nextBtn.style.opacity = nextBtn.disabled ? '0.4' : '1';
+    nextBtn.style.cursor = nextBtn.disabled ? 'default' : 'pointer';
+    nextBtn.addEventListener('click', () => onPageChange(page + 1));
+
+    container.appendChild(prevBtn);
+    container.appendChild(label);
+    container.appendChild(nextBtn);
+  }
 
   async function addFriend(name){
     const statusEl = document.getElementById('friendsStatus');
@@ -3325,6 +3370,9 @@
     saveFriendsLocal();
     document.getElementById('addFriendInput').value = '';
     statusEl.className='lobby-status ok'; statusEl.textContent = 'added!';
+    // Jump to the friend's new page so adding them from "Other players"
+    // doesn't leave them looking like nothing happened.
+    friendsPage = Math.max(0, Math.ceil(friendsListLocal.length / PLAYERS_PAGE_SIZE) - 1);
     refreshFriendsScreen();
   }
 
@@ -3356,12 +3404,19 @@
 
   async function renderFriendsList(){
     const el = document.getElementById('friendsList');
+    const pagEl = document.getElementById('friendsPagination');
     const badge = document.getElementById('friendsCountBadge');
     if(badge) badge.textContent = friendsListLocal.length;
     el.innerHTML = '';
+    pagEl.innerHTML = '';
     if(friendsListLocal.length === 0){ el.innerHTML = '<div class="lb-empty mono">No friends yet — add one above, or pick someone from "Other players" below.</div>'; return; }
+
+    const totalPages = Math.max(1, Math.ceil(friendsListLocal.length / PLAYERS_PAGE_SIZE));
+    friendsPage = Math.min(Math.max(0, friendsPage), totalPages - 1);
+    const pageNames = friendsListLocal.slice(friendsPage * PLAYERS_PAGE_SIZE, (friendsPage + 1) * PLAYERS_PAGE_SIZE);
+
     await initFirebase();
-    for(const name of friendsListLocal){
+    for(const name of pageNames){
       const [online, stats] = await Promise.all([
         firebaseReady ? isFriendOnline(name) : Promise.resolve(false),
         firebaseReady ? fetchPlayerStats(name) : Promise.resolve(null)
@@ -3384,16 +3439,22 @@
     el.querySelectorAll('[data-chat]').forEach(btn => btn.addEventListener('click', () => openFriendChat(btn.dataset.chat)));
     el.querySelectorAll('[data-invite]').forEach(btn => btn.addEventListener('click', () => sendFriendInvite(btn.dataset.invite)));
     el.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeFriend(btn.dataset.remove)));
+
+    renderPaginationControls(pagEl, friendsPage, totalPages, (p) => { friendsPage = p; renderFriendsList(); });
   }
 
   // "Other players" — everyone who has ever set a name and isn't already a
   // friend (and isn't you), so people can discover and add friends instead
-  // of only being able to add someone by typing their exact name.
+  // of only being able to add someone by typing their exact name. The full
+  // (filtered) list is fetched fresh on each render and then paginated
+  // client-side, PLAYERS_PAGE_SIZE at a time.
   async function renderOtherPlayersList(){
     const el = document.getElementById('otherPlayersList');
+    const pagEl = document.getElementById('otherPlayersPagination');
     const badge = document.getElementById('otherPlayersCountBadge');
     const statusEl = document.getElementById('otherPlayersStatus');
     el.innerHTML = '';
+    pagEl.innerHTML = '';
     statusEl.className = 'lobby-status';
     statusEl.textContent = 'loading…';
     await initFirebase();
@@ -3426,8 +3487,13 @@
       el.innerHTML = '<div class="lb-empty mono">No other players yet — invite someone to play!</div>';
       return;
     }
-    const onlineFlags = await Promise.all(others.map(p => isFriendOnline(p.name)));
-    others.forEach((p, i) => {
+
+    const totalPages = Math.max(1, Math.ceil(others.length / PLAYERS_PAGE_SIZE));
+    otherPlayersPage = Math.min(Math.max(0, otherPlayersPage), totalPages - 1);
+    const pagePlayers = others.slice(otherPlayersPage * PLAYERS_PAGE_SIZE, (otherPlayersPage + 1) * PLAYERS_PAGE_SIZE);
+
+    const onlineFlags = await Promise.all(pagePlayers.map(p => isFriendOnline(p.name)));
+    pagePlayers.forEach((p, i) => {
       const nameEsc = escapeHtml(p.name);
       const online = onlineFlags[i];
       const row = document.createElement('div');
@@ -3444,6 +3510,8 @@
     });
     el.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => openProfileView(node.dataset.view)));
     el.querySelectorAll('[data-addfriend]').forEach(btn => btn.addEventListener('click', () => addFriend(btn.dataset.addfriend)));
+
+    renderPaginationControls(pagEl, otherPlayersPage, totalPages, (p) => { otherPlayersPage = p; renderOtherPlayersList(); });
   }
 
   function pairId(a,b){ const s=[slugify(a),slugify(b)].sort(); return s[0]+'__'+s[1]; }
@@ -3554,7 +3622,12 @@
     })();
   }
 
-  document.getElementById('friendsBtn').addEventListener('click', () => { showScreen('screen-friends'); refreshFriendsScreen(); });
+  document.getElementById('friendsBtn').addEventListener('click', () => {
+    friendsPage = 0;
+    otherPlayersPage = 0;
+    showScreen('screen-friends');
+    refreshFriendsScreen();
+  });
   document.getElementById('friendsBackBtn').addEventListener('click', () => showScreen('screen-home'));
   document.getElementById('addFriendBtn').addEventListener('click', () => addFriend(document.getElementById('addFriendInput').value));
   document.getElementById('addFriendInput').addEventListener('keydown', (e) => { if(e.key==='Enter') addFriend(e.target.value); });
